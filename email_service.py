@@ -1,37 +1,37 @@
 """
 Email service using HTTP API (works on Render)
-Using Resend.com - Free 100 emails/day
+Using Mailgun API - Free 100 emails/day to any address
 """
 import requests
 import os
 
 # Get API key from environment variable (set in Render dashboard)
-RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY', '')
+MAILGUN_DOMAIN = os.environ.get('MAILGUN_DOMAIN', 'sandbox-123.mailgun.org')
 
-def send_email_http(to_email, subject, html_body, from_email='onboarding@resend.dev'):
+def send_email_http(to_email, subject, html_body, from_email='EBI Roadshow <mailgun@sandbox.mailgun.org>'):
     """
-    Send email using Resend HTTP API (works on Render, bypasses SMTP blocks)
+    Send email using Mailgun HTTP API (works on Render, bypasses SMTP blocks)
     
     Setup:
-    1. Sign up at https://resend.com (free 100 emails/day)
-    2. Get API key from dashboard
-    3. Add to Render: Environment → RESEND_API_KEY = your_key
+    1. Sign up at https://signup.mailgun.com/new/signup (free 100 emails/day)
+    2. Get API key from dashboard (starts with 'key-')
+    3. Add to Render Environment: 
+       - MAILGUN_API_KEY = your_key
+       - MAILGUN_DOMAIN = your_sandbox_domain (e.g., sandbox123.mailgun.org)
     """
     
-    if not RESEND_API_KEY:
-        print("Warning: RESEND_API_KEY not set. Skipping email.")
+    if not MAILGUN_API_KEY:
+        print("Warning: MAILGUN_API_KEY not set. Skipping email.")
         return False
     
     try:
         response = requests.post(
-            'https://api.resend.com/emails',
-            headers={
-                'Authorization': f'Bearer {RESEND_API_KEY}',
-                'Content-Type': 'application/json'
-            },
-            json={
+            f'https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages',
+            auth=('api', MAILGUN_API_KEY),
+            data={
                 'from': from_email,
-                'to': [to_email],
+                'to': to_email,
                 'subject': subject,
                 'html': html_body
             },
