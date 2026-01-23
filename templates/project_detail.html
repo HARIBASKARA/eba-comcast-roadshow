@@ -235,6 +235,41 @@
             line-height: 1.6;
         }
 
+        #qr-reader {
+            width: 100%;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: none;
+            overflow: hidden;
+        }
+
+        #qr-reader.active {
+            display: block;
+        }
+
+        .scanner-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .cancel-scan {
+            background: #dc3545;
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+        }
+
+        .cancel-scan.active {
+            display: block;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 30px 20px;
@@ -250,6 +285,7 @@
             }
         }
     </style>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
     <div class="container">
@@ -269,10 +305,18 @@
                 📱 Scan the QR code at this team station to begin
             </p>
 
-            <button class="scan-button" id="scanButton" onclick="simulateScan()">
+            <button class="scan-button" id="scanButton" onclick="startQRScanner()">
                 <span class="scan-icon">📷</span>
                 <span id="buttonText">Scan QR Code</span>
             </button>
+
+            <div id="qr-reader"></div>
+            
+            <div class="scanner-controls">
+                <button class="cancel-scan" id="cancelScan" onclick="stopQRScanner()">
+                    Cancel Scan
+                </button>
+            </div>
 
             <div class="status-message" id="statusMessage"></div>
 
@@ -297,13 +341,14 @@
         let projectStarted = false;
         let startTime = null;
         let timerInterval = null;
+        let html5QrCode = null;
+        const expectedProjectId = '{{ project_id }}';
 
-        async function simulateScan() {
+        async function startQRScanner() {
             const button = document.getElementById('scanButton');
             const statusMsg = document.getElementById('statusMessage');
-            const instruction = document.getElementById('scanInstruction');
-            const timerDisplay = document.getElementById('timerDisplay');
-            const buttonText = document.getElementById('buttonText');
+            const qrReader = document.getElementById('qr-reader');
+            const cancelBtn = document.getElementById('cancelScan');
 
             if (projectStarted) {
                 statusMsg.textContent = 'Project already started! Return to main menu to complete.';
@@ -311,6 +356,98 @@
                 statusMsg.style.display = 'block';
                 return;
             }
+
+            // Hide scan button, show scanner
+            button.style.display = 'none';
+            qrReader.classList.add('active');
+            cancelBtn.classList.add('active');
+            statusMsg.textContent = '📸 Camera starting... Please allow camera access if prompted.';
+            statusMsg.className = 'status-message info';
+            statusMsg.style.display = 'block';
+
+            try {
+                html5QrCode = new Html5Qrcode("qr-reader");
+                
+                await html5QrCode.start(
+                    { facingMode: "environment" }, // Use back camera on mobile
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    },
+                    onScanSuccess,
+                    onScanFailure
+                );
+
+                statusMsg.textContent = '🎯 Camera ready! Point at the QR code for this team.';
+                statusMsg.className = 'status-message info';
+            } catch (err) {
+                console.error('QR Scanner error:', err);
+                statusMsg.textContent = '❌ Could not start camera: ' + err;
+                statusMsg.className = 'status-message error';
+                stopQRScanner();
+            }
+        }
+
+        async function onScanSuccess(decodedText, decodedResult) {
+            const statusMsg = document.getElementById('statusMessage');
+            
+            console.log('Scanned QR:', decodedText);
+            console.log('Expected project:', expectedProjectId);
+
+            // Check if scanned QR matches this project
+            if (decodedText === expectedProjectId || decodedText === `project_${expectedProjectId}`) {
+                // Correct QR code scanned!
+                statusMsg.textContent = '✅ Correct QR code! Starting team exploration...';
+                statusMsg.className = 'status-message success';
+                
+                // Stop scanner
+                await stopQRScanner();
+                
+                // Start the project
+                await startProject();
+            } else {
+                // Wrong QR code
+                statusMsg.textContent = '❌ Wrong QR code! Please scan the QR for {{ project.name }}.';
+                statusMsg.className = 'status-message error';
+                statusMsg.style.display = 'block';
+                
+                // Play error sound/vibration if available
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+        }
+
+        function onScanFailure(error) {
+            // Scanning failed, ignore (this happens continuously)
+        }
+
+        async function stopQRScanner() {
+            const button = document.getElementById('scanButton');
+            const qrReader = document.getElementById('qr-reader');
+            const cancelBtn = document.getElementById('cancelScan');
+
+            if (html5QrCode) {
+                try {
+                    await html5QrCode.stop();
+                    html5QrCode.clear();
+                } catch (err) {
+                    console.error('Error stopping scanner:', err);
+                }
+                html5QrCode = null;
+            }
+
+            qrReader.classList.remove('active');
+            cancelBtn.classList.remove('active');
+            button.style.display = 'flex';
+        }
+
+        async function startProject() {
+            const button = document.getElementById('scanButton');
+            const statusMsg = document.getElementById('statusMessage');
+            const instruction = document.getElementById('scanInstruction');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const buttonText = document.getElementById('buttonText');
 
             button.disabled = true;
             buttonText.textContent = 'Starting...';

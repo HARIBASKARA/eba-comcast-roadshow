@@ -97,13 +97,25 @@ def main():
         "🚀 Welcome to EBI Roadshow"
     )
     
-    # Generate QR codes for all 7 projects
+    # Generate verification QR codes for all 7 projects (just project IDs for scanning)
+    project_names = {
+        '1': 'Framework',
+        '2': 'Solution',
+        '3': 'Data Analytics Team',
+        '4': 'Machine Learning Team',
+        '5': 'Artificial Intelligence Team',
+        '6': 'Market Team',
+        '7': 'Email Campaign Team'
+    }
+    
     for i in range(1, 8):
-        project_url = f"{SERVER_URL}/project/{i}"
+        # Create simple project ID for verification
+        project_id = str(i)
+        team_name = project_names.get(project_id, f'Team {i}')
         generate_qr_code(
-            project_url,
-            f"project_{i}_qr.png",
-            f"📍 PROJECT {i}"
+            project_id,  # Just the ID for verification
+            f"team_{i}_verification_qr.png",
+            f"📍 {team_name}"
         )
     
     print("\n" + "=" * 50)
@@ -111,9 +123,13 @@ def main():
     print(f"📁 QR codes saved in: {os.path.abspath(QR_DIR)}")
     print("\n📋 Instructions:")
     print("1. Print the entrance_qr.png for the roadshow entrance")
-    print("2. Print project_1_qr.png through project_7_qr.png for each team")
-    print("3. Place each QR code at its respective team station")
-    print("\n💡 Tip: Visitors scan to register and explore EBI Comcast teams!")
+    print("2. Print team_1_verification_qr.png through team_7_verification_qr.png")
+    print("3. Place each verification QR at its team station")
+    print("4. Visitors must scan the correct team QR to start the timer")
+    print("\n💡 How it works:")
+    print("   - Click team button → Camera opens")
+    print("   - Scan team QR code → Verifies correct team")
+    print("   - Timer starts → Explore the team!")
 
 if __name__ == "__main__":
     main()
