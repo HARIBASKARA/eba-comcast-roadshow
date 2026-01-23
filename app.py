@@ -125,10 +125,15 @@ def projects():
 @app.route('/project/<project_id>')
 def project_detail(project_id):
     """Display individual project page - Redirect to entrance if not registered"""
+    # Check if this is from a QR scan (has verify parameter)
+    verify_id = request.args.get('verify')
+    
     # Check if registered
     if 'employee_id' not in session or 'name' not in session or 'email' not in session:
         # Not registered - store intended project and redirect to entrance
         session['intended_project'] = project_id
+        if verify_id:
+            session['scanned_verify_id'] = verify_id  # Remember they scanned the QR
         from flask import redirect, url_for
         return redirect(url_for('index') + '?redirect=register')
     
@@ -136,10 +141,16 @@ def project_detail(project_id):
         return "Project not found", 404
     
     project = PROJECTS[project_id]
+    
+    # Check if they just registered and scanned a QR
+    scanned_verify = session.pop('scanned_verify_id', None)
+    show_scan_prompt = (scanned_verify == project_id)
+    
     return render_template('project_detail.html', 
                          project_id=project_id,
                          project=project,
-                         is_registered=True)
+                         is_registered=True,
+                         show_scan_prompt=show_scan_prompt)
 
 @app.route('/start-project/<project_id>', methods=['POST'])
 def start_project(project_id):

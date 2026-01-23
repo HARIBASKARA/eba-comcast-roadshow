@@ -97,7 +97,7 @@ def main():
         "🚀 Welcome to EBI Roadshow"
     )
     
-    # Generate verification QR codes for all 7 projects (just project IDs for scanning)
+    # Generate ONE QR per team (physical station QR)
     project_names = {
         '1': 'Framework',
         '2': 'Solution',
@@ -109,39 +109,35 @@ def main():
     }
     
     for i in range(1, 8):
-        # Create team page URL for initial QR scan (to access the team)
-        team_url = f"{SERVER_URL}/project/{i}"
+        # Create ONE QR per team - contains team URL for access AND team ID for verification
+        # Format: URL?verify=ID (e.g., /project/1?verify=1)
+        team_url = f"{SERVER_URL}/project/{i}?verify={i}"
         team_name = project_names.get(str(i), f'Team {i}')
         generate_qr_code(
-            team_url,  # Full URL to open team page
-            f"team_{i}_access_qr.png",
-            f"📱 Scan to Access: {team_name}"
-        )
-        
-        # Create verification QR for physical station (contains just ID for camera verification)
-        project_id = str(i)
-        generate_qr_code(
-            project_id,  # Just the ID for camera verification at station
-            f"team_{i}_station_qr.png",
-            f"📍 Station QR: {team_name}"
+            team_url,
+            f"team_{i}_qr.png",
+            f"📍 {team_name}"
         )
     
     print("\n" + "=" * 50)
     print("✅ All QR codes generated successfully!")
     print(f"📁 QR codes saved in: {os.path.abspath(QR_DIR)}")
     print("\n📋 Instructions:")
-    print("1. Print entrance_qr.png for roadshow entrance")
-    print("2. Print team_X_access_qr.png - Give to visitors or display (scan to open team page)")
-    print("3. Print team_X_station_qr.png - Place at each team station (for camera verification)")
-    print("\n💡 How it works:")
-    print("   Step 1: Visitor scans team_X_access_qr → Opens team page")
-    print("   Step 2: If not registered → Redirects to entrance → Register")
-    print("   Step 3: Auto-returns to team page")
-    print("   Step 4: Click 'Scan QR' → Camera opens")
-    print("   Step 5: Scan team_X_station_qr at physical station → Verify → Timer starts!")
-    print("\n🎯 Two QR codes per team:")
-    print("   - Access QR: To navigate to team (can be digital)")
-    print("   - Station QR: Physical QR at team location for verification")
+    print("1. Print entrance_qr.png - Place at roadshow entrance")
+    print("2. Print team_1_qr.png through team_7_qr.png")
+    print("3. Place each team QR at its physical station")
+    print("\n💡 Flow for registered user:")
+    print("   1. Scan entrance → Register")
+    print("   2. Click team button → Team page")
+    print("   3. Click 'Scan QR' → Camera opens")
+    print("   4. Scan physical team QR → Timer starts")
+    print("\n💡 Flow if user scans team QR first (not registered):")
+    print("   1. Scan team QR directly")
+    print("   2. Redirects to entrance → Register")
+    print("   3. Auto-goes to that team page")
+    print("   4. Click 'Scan QR' → Camera opens")
+    print("   5. Scan same physical QR → Timer starts")
+    print("\n🎯 ONE QR per team does everything!")
 
 if __name__ == "__main__":
     main()

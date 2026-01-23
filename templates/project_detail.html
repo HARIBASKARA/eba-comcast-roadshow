@@ -343,6 +343,22 @@
         let timerInterval = null;
         let html5QrCode = null;
         const expectedProjectId = '{{ project_id }}';
+        const showScanPrompt = {{ 'true' if show_scan_prompt else 'false' }};
+
+        // Auto-open camera if user came from QR scan after registration
+        window.addEventListener('DOMContentLoaded', () => {
+            if (showScanPrompt) {
+                const statusMsg = document.getElementById('statusMessage');
+                statusMsg.textContent = '✅ Registered! Now scan the team QR to start timer.';
+                statusMsg.className = 'status-message success';
+                statusMsg.style.display = 'block';
+                
+                // Auto-open scanner after a brief delay
+                setTimeout(() => {
+                    startQRScanner();
+                }, 1000);
+            }
+        });
 
         async function startQRScanner() {
             const button = document.getElementById('scanButton');
@@ -394,8 +410,19 @@
             console.log('Scanned QR:', decodedText);
             console.log('Expected project:', expectedProjectId);
 
+            // Extract project ID from scanned QR (handles both simple ID and full URL)
+            let scannedProjectId = decodedText;
+            
+            // If it's a full URL, extract the project ID
+            if (decodedText.includes('/project/')) {
+                const match = decodedText.match(/\/project\/(\d+)/);
+                if (match) {
+                    scannedProjectId = match[1];
+                }
+            }
+
             // Check if scanned QR matches this project
-            if (decodedText === expectedProjectId || decodedText === `project_${expectedProjectId}`) {
+            if (scannedProjectId === expectedProjectId || decodedText === expectedProjectId || decodedText === `project_${expectedProjectId}`) {
                 // Correct QR code scanned!
                 statusMsg.textContent = '✅ Correct QR code! Starting team exploration...';
                 statusMsg.className = 'status-message success';
