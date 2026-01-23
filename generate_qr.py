@@ -1,6 +1,6 @@
 """
-QR Code Generator for Science Exhibition
-Generates QR codes for entrance and all 7 project stations
+QR Code Generator for EBI Comcast Roadshow
+Generates QR codes for entrance and all 7 team stations
 """
 
 import qrcode
@@ -76,7 +76,7 @@ def generate_qr_code(data, filename, label):
 def main():
     global SERVER_URL
     
-    print("🔬 Science Exhibition QR Code Generator")
+    print("🚀 EBI Comcast Roadshow QR Code Generator")
     print("=" * 50)
     
     # Ask user for server URL
@@ -94,7 +94,7 @@ def main():
     generate_qr_code(
         entrance_url,
         "entrance_qr.png",
-        "🔬 ENTRANCE - Science Exhibition"
+        "🚀 Welcome to EBI Roadshow"
     )
     
     # Generate QR codes for all 7 projects
@@ -110,10 +110,10 @@ def main():
     print("✅ All QR codes generated successfully!")
     print(f"📁 QR codes saved in: {os.path.abspath(QR_DIR)}")
     print("\n📋 Instructions:")
-    print("1. Print the entrance_qr.png for the main gate")
-    print("2. Print project_1_qr.png through project_7_qr.png")
-    print("3. Place each QR code at its respective project station")
-    print("\n💡 Tip: Make sure your Flask app is running on the same URL!")
+    print("1. Print the entrance_qr.png for the roadshow entrance")
+    print("2. Print project_1_qr.png through project_7_qr.png for each team")
+    print("3. Place each QR code at its respective team station")
+    print("\n💡 Tip: Visitors scan to register and explore EBI Comcast teams!")
 
 if __name__ == "__main__":
     main()

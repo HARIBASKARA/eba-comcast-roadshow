@@ -217,7 +217,7 @@ def send_summary_email(employee_name, employee_email, employee_id, entry_time, p
     try:
         # Create message
         msg = MIMEMultipart('alternative')
-        msg['Subject'] = 'Thank You for Visiting EBA Comcast Roadshow!'
+        msg['Subject'] = 'Thank You for Visiting EBI Comcast Roadshow!'
         msg['From'] = EMAIL_SENDER
         msg['To'] = employee_email
         
@@ -382,7 +382,7 @@ def send_summary_email(employee_name, employee_email, employee_id, entry_time, p
             <div class="email-wrapper">
                 <div class="email-container">
                     <div class="header">
-                        <h1>🚀 Thanks for Visiting EBA Comcast Roadshow</h1>
+                        <h1>🚀 Thanks for Visiting EBI Comcast Roadshow</h1>
                         <p>We Appreciate Your Time and Interest</p>
                     </div>
                     
@@ -455,10 +455,10 @@ def send_summary_email(employee_name, employee_email, employee_id, entry_time, p
                     </div>
                     
                     <div class="footer">
-                        <p><strong>EBA Comcast</strong></p>
+                        <p><strong>EBI Comcast</strong></p>
                         <p>Driving Innovation Forward 🚀</p>
                         <p style="margin-top: 15px; font-size: 12px; color: #999;">
-                            © 2026 EBA Comcast. All rights reserved.
+                            © 2026 EBI Comcast. All rights reserved.
                         </p>
                     </div>
                 </div>
@@ -484,14 +484,23 @@ def send_summary_email(employee_name, employee_email, employee_id, entry_time, p
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    """Handle logout - EMAIL DISABLED FOR RENDER DEPLOYMENT"""
+    """Handle logout and send summary email"""
     try:
         # Get session data before clearing
         employee_name = session.get('name', 'Guest')
+        employee_email = session.get('email')
+        employee_id = session.get('employee_id')
+        entry_time = session.get('entry_time')
+        project_times = session.get('project_times', {})
         
-        # EMAIL TEMPORARILY DISABLED - Render free tier blocks SMTP
-        # Can re-enable with SendGrid API or other email service
+        # Send email if we have an email address (with timeout to prevent hanging)
         email_sent = False
+        if employee_email and employee_id and entry_time:
+            try:
+                email_sent = send_summary_email(employee_name, employee_email, employee_id, entry_time, project_times)
+            except Exception as email_error:
+                print(f"Email sending failed (non-critical): {str(email_error)}")
+                email_sent = False
         
         # Clear session
         session.clear()
@@ -499,7 +508,7 @@ def logout():
         return jsonify({
             'success': True,
             'email_sent': email_sent,
-            'message': 'Logged out successfully'
+            'message': 'Logged out successfully' + (' - Email sent!' if email_sent else '')
         })
     except Exception as e:
         # Clear session anyway
