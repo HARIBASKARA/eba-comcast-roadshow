@@ -9,7 +9,8 @@
 EMAIL_SENDER = 'hbaskar1@gmail.com'  # Your Gmail address
 EMAIL_PASSWORD = 'hrgq dsue jzsz zhod'   # Your Gmail App Password (16 characters)
 SMTP_SERVER = 'smtp.gmail.com'
-SMTP_PORT = 587
+SMTP_PORT = 465  # Try SSL port instead of TLS
+USE_SSL = True  # Use SSL instead of TLS
 
 # For Outlook/Hotmail:
 # EMAIL_SENDER = 'your-email@outlook.com'

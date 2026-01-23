@@ -14,13 +14,14 @@ app.secret_key = secrets.token_hex(16)
 # Email Configuration
 # You can update these directly or use email_config.py
 try:
-    from email_config import EMAIL_SENDER, EMAIL_PASSWORD, SMTP_SERVER, SMTP_PORT
+    from email_config import EMAIL_SENDER, EMAIL_PASSWORD, SMTP_SERVER, SMTP_PORT, USE_SSL
 except ImportError:
     # Default values if email_config.py doesn't exist
     EMAIL_SENDER = 'your-email@gmail.com'  # Update with your email
     EMAIL_PASSWORD = 'your-app-password'  # Update with your app password
     SMTP_SERVER = 'smtp.gmail.com'
-    SMTP_PORT = 587
+    SMTP_PORT = 465
+    USE_SSL = True
 
 # File paths
 ENTRY_DATA_FILE = 'entry_data.csv'
@@ -471,11 +472,16 @@ def send_summary_email(employee_name, employee_email, employee_id, entry_time, p
         html_part = MIMEText(html_body, 'html')
         msg.attach(html_part)
         
-        # Send email
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
-            server.starttls()
-            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-            server.send_message(msg)
+        # Send email using SSL or TLS based on config
+        if USE_SSL:
+            with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
+                server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+                server.send_message(msg)
+        else:
+            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
+                server.starttls()
+                server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+                server.send_message(msg)
         
         return True
     except Exception as e:
