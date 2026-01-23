@@ -1,50 +1,54 @@
 """
-Email service using HTTP API (works on Render)
-Using Mailgun API - Free 100 emails/day to any address
+Simple email service using Gmail SMTP
+Works locally. On Render, emails may not send due to SMTP port blocks, but app continues normally.
 """
-import requests
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import os
 
-# Get API key from environment variable (set in Render dashboard)
-MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY', '')
-MAILGUN_DOMAIN = os.environ.get('MAILGUN_DOMAIN', 'sandbox-123.mailgun.org')
+# Get config from environment or use defaults
+EMAIL_SENDER = os.environ.get('EMAIL_SENDER', 'hbaskar1@gmail.com')
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'hrgq dsue jzsz zhod')
+SMTP_SERVER = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
+SMTP_PORT = int(os.environ.get('SMTP_PORT', '465'))
 
-def send_email_http(to_email, subject, html_body, from_email='EBI Roadshow <mailgun@sandbox.mailgun.org>'):
+def send_email_http(to_email, subject, html_body, from_email=None):
     """
-    Send email using Mailgun HTTP API (works on Render, bypasses SMTP blocks)
+    Send email using Gmail SMTP
     
-    Setup:
-    1. Sign up at https://signup.mailgun.com/new/signup (free 100 emails/day)
-    2. Get API key from dashboard (starts with 'key-')
-    3. Add to Render Environment: 
-       - MAILGUN_API_KEY = your_key
-       - MAILGUN_DOMAIN = your_sandbox_domain (e.g., sandbox123.mailgun.org)
+    Works locally with your Gmail credentials.
+    On Render: Add these to Environment variables for it to work:
+    - EMAIL_SENDER = your-email@gmail.com
+    - EMAIL_PASSWORD = your-app-password
+    
+    If email fails (e.g., on Render free tier), app continues normally.
     """
     
-    if not MAILGUN_API_KEY:
-        print("Warning: MAILGUN_API_KEY not set. Skipping email.")
+    if not EMAIL_PASSWORD or EMAIL_PASSWORD == '':
+        print("⚠️ Email password not configured. Skipping email.")
         return False
     
     try:
-        response = requests.post(
-            f'https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages',
-            auth=('api', MAILGUN_API_KEY),
-            data={
-                'from': from_email,
-                'to': to_email,
-                'subject': subject,
-                'html': html_body
-            },
-            timeout=10
-        )
+        print(f"📧 Attempting to send email to {to_email}...")
         
-        if response.status_code == 200:
-            print(f"✅ Email sent successfully to {to_email}")
-            return True
-        else:
-            print(f"❌ Email failed: {response.status_code} - {response.text}")
-            return False
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = from_email or EMAIL_SENDER
+        msg['To'] = to_email
+        
+        html_part = MIMEText(html_body, 'html')
+        msg.attach(html_part)
+        
+        # Use SSL connection
+        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
+            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+            server.send_message(msg)
+        
+        print(f"✅ Email sent successfully to {to_email}")
+        return True
             
     except Exception as e:
-        print(f"❌ Email error: {str(e)}")
+        print(f"⚠️ Email failed (non-critical): {str(e)}")
+        print("   App continues normally without email.")
         return False
