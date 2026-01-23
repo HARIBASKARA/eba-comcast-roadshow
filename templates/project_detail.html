@@ -400,6 +400,45 @@
                 clearInterval(timerInterval);
             }
         });
+
+        // Handle browser/phone back button
+        window.addEventListener('popstate', async (event) => {
+            if (projectStarted) {
+                // Record the time before leaving
+                try {
+                    await fetch(`/end-project/{{ project_id }}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                } catch (error) {
+                    console.error('Failed to record time:', error);
+                }
+                
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                }
+            }
+        });
+
+        // Handle page visibility change (when user switches tabs or apps on mobile)
+        document.addEventListener('visibilitychange', async () => {
+            if (document.hidden && projectStarted) {
+                // User is leaving the page, record time
+                try {
+                    await fetch(`/end-project/{{ project_id }}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        keepalive: true  // Ensures request completes even if page is closing
+                    });
+                } catch (error) {
+                    console.error('Failed to record time:', error);
+                }
+            }
+        });
     </script>
 </body>
 </html>
