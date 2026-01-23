@@ -472,7 +472,7 @@ def send_summary_email(employee_name, employee_email, employee_id, entry_time, p
         msg.attach(html_part)
         
         # Send email
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
             server.starttls()
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
             server.send_message(msg)
@@ -493,10 +493,14 @@ def logout():
         entry_time = session.get('entry_time')
         project_times = session.get('project_times', {})
         
-        # Send email if we have an email address
+        # Send email if we have an email address (non-blocking)
         email_sent = False
         if employee_email and employee_id and entry_time:
-            email_sent = send_summary_email(employee_name, employee_email, employee_id, entry_time, project_times)
+            try:
+                email_sent = send_summary_email(employee_name, employee_email, employee_id, entry_time, project_times)
+            except Exception as email_error:
+                print(f"Email sending failed (non-critical): {str(email_error)}")
+                email_sent = False
         
         # Clear session
         session.clear()
