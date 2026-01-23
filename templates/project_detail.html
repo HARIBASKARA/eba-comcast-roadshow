@@ -399,11 +399,12 @@
                 // Correct QR code scanned!
                 statusMsg.textContent = '✅ Correct QR code! Starting team exploration...';
                 statusMsg.className = 'status-message success';
+                statusMsg.style.display = 'block';
                 
                 // Stop scanner
                 await stopQRScanner();
                 
-                // Start the project
+                // Start the project (user is already registered if they reached this page)
                 await startProject();
             } else {
                 // Wrong QR code

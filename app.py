@@ -100,7 +100,13 @@ def submit_entry():
         writer = csv.writer(f)
         writer.writerow([employee_id, name, email, entry_timestamp])
     
-    return jsonify({'success': True})
+    # Check if there's an intended project to redirect to
+    intended_project = session.pop('intended_project', None)
+    
+    return jsonify({
+        'success': True, 
+        'redirect_to_project': intended_project
+    })
 
 @app.route('/projects')
 def projects():
@@ -118,10 +124,11 @@ def projects():
 
 @app.route('/project/<project_id>')
 def project_detail(project_id):
-    """Display individual project page - MUST be registered first"""
-    # Security check: Must have registered at entrance first
+    """Display individual project page - Redirect to entrance if not registered"""
+    # Check if registered
     if 'employee_id' not in session or 'name' not in session or 'email' not in session:
-        # Not registered - redirect to entrance with message
+        # Not registered - store intended project and redirect to entrance
+        session['intended_project'] = project_id
         from flask import redirect, url_for
         return redirect(url_for('index') + '?redirect=register')
     
@@ -131,7 +138,8 @@ def project_detail(project_id):
     project = PROJECTS[project_id]
     return render_template('project_detail.html', 
                          project_id=project_id,
-                         project=project)
+                         project=project,
+                         is_registered=True)
 
 @app.route('/start-project/<project_id>', methods=['POST'])
 def start_project(project_id):

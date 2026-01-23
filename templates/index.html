@@ -250,9 +250,13 @@
                     successMsg.textContent = 'Registration successful! Redirecting...';
                     successMsg.style.display = 'block';
                     
-                    // Redirect to projects page
+                    // Redirect to intended project or projects page
                     setTimeout(() => {
-                        window.location.href = '/projects';
+                        if (result.redirect_to_project) {
+                            window.location.href = `/project/${result.redirect_to_project}`;
+                        } else {
+                            window.location.href = '/projects';
+                        }
                     }, 1000);
                 } else {
                     errorMsg.textContent = result.message || 'Registration failed. Please try again.';
