@@ -1,46 +1,51 @@
 """
-Email service using Resend HTTP API (works on Render - no SMTP blocks!)
-Resend: Free 3,000 emails/month, 100/day - SIMPLEST setup ever
+Email service using Brevo API (formerly Sendinblue)
+Free: 300 emails/day, works on Render, NO domain verification needed!
 """
 import requests
 import os
 
 # Get API key from environment
-RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
-RESEND_FROM_EMAIL = os.environ.get('RESEND_FROM_EMAIL', 'onboarding@resend.dev')
+BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '')
+BREVO_FROM_EMAIL = os.environ.get('BREVO_FROM_EMAIL', 'hbaskar1@gmail.com')
+BREVO_FROM_NAME = os.environ.get('BREVO_FROM_NAME', 'EBI Roadshow')
 
 def send_email_http(to_email, subject, html_body, from_email=None):
     """
-    Send email using Resend HTTP API (works perfectly on Render!)
+    Send email using Brevo API (works on Render, no SMTP needed!)
     
-    SUPER SIMPLE SETUP (1 minute):
-    1. Go to https://resend.com/signup (sign up free)
-    2. Get API key from dashboard (starts with 're_')
+    EASY SETUP (2 minutes):
+    1. Sign up FREE: https://app.brevo.com/account/register
+    2. Go to: Settings → SMTP & API → API Keys → Create New
     3. Add to Render Environment:
-       RESEND_API_KEY = re_your_key_here
+       BREVO_API_KEY = xkeysib-your_key_here
+       BREVO_FROM_EMAIL = hbaskar1@gmail.com
     
-    That's it! No email verification needed for testing.
+    That's it! 300 free emails/day, no domain verification required!
     """
     
-    if not RESEND_API_KEY or RESEND_API_KEY == '':
-        print("⚠️ RESEND_API_KEY not set. Skipping email.")
-        print("👉 Quick setup: https://resend.com/signup → Get API key → Add to Render Environment")
+    if not BREVO_API_KEY or BREVO_API_KEY == '':
+        print("⚠️ BREVO_API_KEY not set. Email disabled.")
+        print("👉 Setup: https://app.brevo.com/account/register")
         return False
     
     try:
-        print(f"📧 Sending email to {to_email} via Resend API...")
+        print(f"📧 Sending email to {to_email} via Brevo API...")
         
         response = requests.post(
-            'https://api.resend.com/emails',
+            'https://api.brevo.com/v3/smtp/email',
             headers={
-                'Authorization': f'Bearer {RESEND_API_KEY}',
+                'api-key': BREVO_API_KEY,
                 'Content-Type': 'application/json'
             },
             json={
-                'from': from_email or RESEND_FROM_EMAIL,
-                'to': [to_email],
+                'sender': {
+                    'email': from_email or BREVO_FROM_EMAIL,
+                    'name': BREVO_FROM_NAME
+                },
+                'to': [{'email': to_email}],
                 'subject': subject,
-                'html': html_body
+                'htmlContent': html_body
             },
             timeout=10
         )
@@ -55,5 +60,5 @@ def send_email_http(to_email, subject, html_body, from_email=None):
             
     except Exception as e:
         print(f"⚠️ Email failed (non-critical): {str(e)}")
-        print("   App continues normally without email.")
+        print("   App continues normally. Data saved to CSV.")
         return False
