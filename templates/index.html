@@ -185,6 +185,9 @@
 
         <div id="errorMessage" class="error-message"></div>
         <div id="successMessage" class="success-message"></div>
+        <div id="redirectMessage" class="error-message" style="display: none;">
+            ⚠️ Please register here first before exploring teams!
+        </div>
 
         <form id="entryForm">
             <div class="form-group">
@@ -215,6 +218,7 @@
             const submitBtn = document.getElementById('submitBtn');
             const errorMsg = document.getElementById('errorMessage');
             const successMsg = document.getElementById('successMessage');
+            const redirectMsg = document.getElementById('redirectMessage');
             
             // Hide previous messages
             errorMsg.style.display = 'none';
@@ -261,6 +265,17 @@
                 errorMsg.style.display = 'block';
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Enter Roadshow →';
+            }
+        });
+
+        // Check if redirected from team page (URL parameter)
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('redirect') === 'register') {
+                const redirectMsg = document.getElementById('redirectMessage');
+                redirectMsg.style.display = 'block';
+                // Auto-focus on first input
+                document.getElementById('employee_id').focus();
             }
         });
     </script>

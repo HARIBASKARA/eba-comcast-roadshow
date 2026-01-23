@@ -118,9 +118,12 @@ def projects():
 
 @app.route('/project/<project_id>')
 def project_detail(project_id):
-    """Display individual project page"""
-    if 'employee_id' not in session:
-        return render_template('index.html')
+    """Display individual project page - MUST be registered first"""
+    # Security check: Must have registered at entrance first
+    if 'employee_id' not in session or 'name' not in session or 'email' not in session:
+        # Not registered - redirect to entrance with message
+        from flask import redirect, url_for
+        return redirect(url_for('index') + '?redirect=register')
     
     if project_id not in PROJECTS:
         return "Project not found", 404
@@ -132,9 +135,10 @@ def project_detail(project_id):
 
 @app.route('/start-project/<project_id>', methods=['POST'])
 def start_project(project_id):
-    """Record start time when QR is scanned at project"""
+    """Record start time when QR is scanned at project - MUST be registered"""
+    # Security check: Must be registered
     if 'employee_id' not in session:
-        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+        return jsonify({'success': False, 'message': 'Please register at entrance first'}), 401
     
     if project_id not in PROJECTS:
         return jsonify({'success': False, 'message': 'Invalid project'}), 400
