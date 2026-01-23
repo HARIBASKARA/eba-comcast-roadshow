@@ -7,7 +7,7 @@ import os
 
 # Get API key from environment
 BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '')
-BREVO_FROM_EMAIL = os.environ.get('BREVO_FROM_EMAIL', 'hbaskar1@gmail.com')
+BREVO_FROM_EMAIL = os.environ.get('BREVO_FROM_EMAIL', 'Haribaskar_Arivazhagan@comcast.com')
 BREVO_FROM_NAME = os.environ.get('BREVO_FROM_NAME', 'EBI Roadshow')
 
 def send_email_http(to_email, subject, html_body, from_email=None):
@@ -19,7 +19,7 @@ def send_email_http(to_email, subject, html_body, from_email=None):
     2. Go to: Settings → SMTP & API → API Keys → Create New
     3. Add to Render Environment:
        BREVO_API_KEY = xkeysib-your_key_here
-       BREVO_FROM_EMAIL = hbaskar1@gmail.com
+       BREVO_FROM_EMAIL = Haribaskar_Arivazhagan@comcast.com
     
     That's it! 300 free emails/day, no domain verification required!
     """
