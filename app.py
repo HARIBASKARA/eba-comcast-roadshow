@@ -484,23 +484,14 @@ def send_summary_email(employee_name, employee_email, employee_id, entry_time, p
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    """Handle logout and send summary email"""
+    """Handle logout - EMAIL DISABLED FOR RENDER DEPLOYMENT"""
     try:
         # Get session data before clearing
         employee_name = session.get('name', 'Guest')
-        employee_email = session.get('email')
-        employee_id = session.get('employee_id')
-        entry_time = session.get('entry_time')
-        project_times = session.get('project_times', {})
         
-        # Send email if we have an email address (non-blocking)
+        # EMAIL TEMPORARILY DISABLED - Render free tier blocks SMTP
+        # Can re-enable with SendGrid API or other email service
         email_sent = False
-        if employee_email and employee_id and entry_time:
-            try:
-                email_sent = send_summary_email(employee_name, employee_email, employee_id, entry_time, project_times)
-            except Exception as email_error:
-                print(f"Email sending failed (non-critical): {str(email_error)}")
-                email_sent = False
         
         # Clear session
         session.clear()
@@ -508,7 +499,7 @@ def logout():
         return jsonify({
             'success': True,
             'email_sent': email_sent,
-            'message': 'Logged out successfully' + (' and email sent' if email_sent else '')
+            'message': 'Logged out successfully'
         })
     except Exception as e:
         # Clear session anyway
