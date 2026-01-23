@@ -4,21 +4,27 @@ import os
 from datetime import datetime
 import secrets
 import re
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+
+# Try to use HTTP-based email service (works on Render)
+try:
+    from email_service import send_email_http
+    USE_HTTP_EMAIL = True
+except ImportError:
+    USE_HTTP_EMAIL = False
+    # Fallback to SMTP (won't work on Render but works locally)
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
-# Email Configuration
-# You can update these directly or use email_config.py
+# Email Configuration (for SMTP fallback)
 try:
     from email_config import EMAIL_SENDER, EMAIL_PASSWORD, SMTP_SERVER, SMTP_PORT, USE_SSL
 except ImportError:
-    # Default values if email_config.py doesn't exist
-    EMAIL_SENDER = 'your-email@gmail.com'  # Update with your email
-    EMAIL_PASSWORD = 'your-app-password'  # Update with your app password
+    EMAIL_SENDER = 'hbaskar1@gmail.com'
+    EMAIL_PASSWORD = ''
     SMTP_SERVER = 'smtp.gmail.com'
     SMTP_PORT = 465
     USE_SSL = True
@@ -216,11 +222,8 @@ def get_session_data():
 def send_summary_email(employee_name, employee_email, employee_id, entry_time, project_times):
     """Send summary email to the employee after logout"""
     try:
-        # Create message
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = 'Thank You for Visiting EBI Comcast Roadshow!'
-        msg['From'] = EMAIL_SENDER
-        msg['To'] = employee_email
+        # Prepare email subject and body
+        subject = 'Thank You for Visiting EBI Comcast Roadshow!'
         
         # Format entry time
         entry_datetime = datetime.fromisoformat(entry_time)
@@ -468,22 +471,31 @@ def send_summary_email(employee_name, employee_email, employee_id, entry_time, p
         </html>
         """
         
-        # Attach HTML content
-        html_part = MIMEText(html_body, 'html')
-        msg.attach(html_part)
-        
-        # Send email using SSL or TLS based on config
-        if USE_SSL:
-            with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
-                server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-                server.send_message(msg)
+        # Use HTTP-based email if available (works on Render), otherwise fallback to SMTP
+        if USE_HTTP_EMAIL:
+            return send_email_http(employee_email, subject, html_body)
         else:
-            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
-                server.starttls()
-                server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-                server.send_message(msg)
+            # SMTP fallback (for local development only - won't work on Render)
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = subject
+            msg['From'] = EMAIL_SENDER
+            msg['To'] = employee_email
+            
+            html_part = MIMEText(html_body, 'html')
+            msg.attach(html_part)
+            
+            if USE_SSL:
+                with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
+                    server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+                    server.send_message(msg)
+            else:
+                with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
+                    server.starttls()
+                    server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+                    server.send_message(msg)
+            
+            return True
         
-        return True
     except Exception as e:
         print(f"Error sending email: {str(e)}")
         return False
