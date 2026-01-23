@@ -13,7 +13,7 @@ os.makedirs(QR_DIR, exist_ok=True)
 
 # Get the local IP address or use localhost
 # You'll need to replace this with your actual server IP address
-SERVER_URL = "https://abc123.ngrok-free.app"  # Your network IP address
+SERVER_URL = "https://eba-comcast-roadshow.onrender.com"  # Your public Render URL
 
 def generate_qr_code(data, filename, label):
     """Generate a QR code with a label"""
