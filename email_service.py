@@ -1,52 +1,57 @@
 """
-Simple email service using Gmail SMTP
-Works locally. On Render, emails may not send due to SMTP port blocks, but app continues normally.
+Email service using Resend HTTP API (works on Render - no SMTP blocks!)
+Resend: Free 3,000 emails/month, 100/day - SIMPLEST setup ever
 """
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import requests
 import os
 
-# Get config from environment or use defaults
-EMAIL_SENDER = os.environ.get('EMAIL_SENDER', 'hbaskar1@gmail.com')
-EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'hrgq dsue jzsz zhod')
-SMTP_SERVER = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
-SMTP_PORT = int(os.environ.get('SMTP_PORT', '465'))
+# Get API key from environment
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+RESEND_FROM_EMAIL = os.environ.get('RESEND_FROM_EMAIL', 'onboarding@resend.dev')
 
 def send_email_http(to_email, subject, html_body, from_email=None):
     """
-    Send email using Gmail SMTP
+    Send email using Resend HTTP API (works perfectly on Render!)
     
-    Works locally with your Gmail credentials.
-    On Render: Add these to Environment variables for it to work:
-    - EMAIL_SENDER = your-email@gmail.com
-    - EMAIL_PASSWORD = your-app-password
+    SUPER SIMPLE SETUP (1 minute):
+    1. Go to https://resend.com/signup (sign up free)
+    2. Get API key from dashboard (starts with 're_')
+    3. Add to Render Environment:
+       RESEND_API_KEY = re_your_key_here
     
-    If email fails (e.g., on Render free tier), app continues normally.
+    That's it! No email verification needed for testing.
     """
     
-    if not EMAIL_PASSWORD or EMAIL_PASSWORD == '':
-        print("⚠️ Email password not configured. Skipping email.")
+    if not RESEND_API_KEY or RESEND_API_KEY == '':
+        print("⚠️ RESEND_API_KEY not set. Skipping email.")
+        print("👉 Quick setup: https://resend.com/signup → Get API key → Add to Render Environment")
         return False
     
     try:
-        print(f"📧 Attempting to send email to {to_email}...")
+        print(f"📧 Sending email to {to_email} via Resend API...")
         
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = subject
-        msg['From'] = from_email or EMAIL_SENDER
-        msg['To'] = to_email
+        response = requests.post(
+            'https://api.resend.com/emails',
+            headers={
+                'Authorization': f'Bearer {RESEND_API_KEY}',
+                'Content-Type': 'application/json'
+            },
+            json={
+                'from': from_email or RESEND_FROM_EMAIL,
+                'to': [to_email],
+                'subject': subject,
+                'html': html_body
+            },
+            timeout=10
+        )
         
-        html_part = MIMEText(html_body, 'html')
-        msg.attach(html_part)
-        
-        # Use SSL connection
-        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
-            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-            server.send_message(msg)
-        
-        print(f"✅ Email sent successfully to {to_email}")
-        return True
+        if response.status_code in [200, 201]:
+            print(f"✅ Email sent successfully to {to_email}")
+            return True
+        else:
+            print(f"⚠️ Email failed: {response.status_code}")
+            print(f"   Response: {response.text}")
+            return False
             
     except Exception as e:
         print(f"⚠️ Email failed (non-critical): {str(e)}")
