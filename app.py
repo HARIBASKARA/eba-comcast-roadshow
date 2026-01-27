@@ -47,7 +47,7 @@ os.makedirs(TIME_TRACKING_DIR, exist_ok=True)
 if not os.path.exists(ENTRY_DATA_FILE):
     with open(ENTRY_DATA_FILE, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['Email', 'Name', 'Entry Timestamp', 'Exit Timestamp'])
+        writer.writerow(['Email', 'Entry Timestamp', 'Exit Timestamp'])
 
 # Project configuration
 PROJECTS = {
@@ -69,11 +69,10 @@ def index():
 def submit_entry():
     """Handle employee entry data submission"""
     data = request.json
-    name = data.get('name')
     email = data.get('email')
     
-    if not all([name, email]):
-        return jsonify({'success': False, 'message': 'All fields are required'}), 400
+    if not email:
+        return jsonify({'success': False, 'message': 'Email is required'}), 400
     
     # Validate email format
     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
@@ -90,7 +89,6 @@ def submit_entry():
     
     # Save to session (use email as the unique identifier)
     session['email'] = email
-    session['name'] = name
     session['entry_time'] = datetime.now().isoformat()
     
     # Initialize project times tracking in session
@@ -101,7 +99,7 @@ def submit_entry():
     entry_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     with open(ENTRY_DATA_FILE, 'a', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow([email, name, entry_timestamp, ''])
+        writer.writerow([email, entry_timestamp, ''])
     
     # Check if there's an intended project to redirect to
     intended_project = session.pop('intended_project', None)
@@ -122,7 +120,7 @@ def projects():
     
     return render_template('projects.html', 
                          projects=PROJECTS,
-                         employee_name=session.get('name'),
+                         employee_name=session.get('email'),
                          project_times=project_times)
 
 @app.route('/project/<project_id>')
@@ -132,7 +130,7 @@ def project_detail(project_id):
     verify_id = request.args.get('verify')
     
     # Check if registered
-    if 'email' not in session or 'name' not in session:
+    if 'email' not in session:
         # Not registered - store intended project and redirect to entrance
         session['intended_project'] = project_id
         if verify_id:
@@ -265,11 +263,10 @@ def get_session_data():
     """Get current session data for debugging"""
     return jsonify({
         'email': session.get('email'),
-        'name': session.get('name'),
         'project_times': session.get('project_times', {})
     })
 
-def send_summary_email(employee_name, employee_email, entry_time, project_times):
+def send_summary_email(employee_email, entry_time, project_times):
     """Send summary email to the employee after logout"""
     try:
         # Prepare email subject and body
@@ -441,7 +438,7 @@ def send_summary_email(employee_name, employee_email, entry_time, project_times)
                     </div>
                     
                     <div class="content">
-                        <div class="greeting">Hi {employee_name},</div>
+                        <div class="greeting">Hello,</div>
                         
                         <div class="entry-info">
                             <p><strong>📅 You entered the roadshow at:</strong></p>
@@ -554,7 +551,6 @@ def logout():
     """Handle logout, update exit time in CSV, and send summary email"""
     try:
         # Get session data before clearing
-        employee_name = session.get('name', 'Guest')
         employee_email = session.get('email')
         entry_time = session.get('entry_time')
         project_times = session.get('project_times', {})
@@ -567,7 +563,7 @@ def logout():
         email_sent = False
         if employee_email and entry_time:
             try:
-                email_sent = send_summary_email(employee_name, employee_email, entry_time, project_times)
+                email_sent = send_summary_email(employee_email, entry_time, project_times)
             except Exception as email_error:
                 print(f"Email sending failed (non-critical): {str(email_error)}")
                 email_sent = False
