@@ -588,6 +588,41 @@ def logout():
             'message': f'Logout completed but error occurred: {str(e)}'
         })
 
+@app.route('/admin-download-csv')
+def admin_download_csv():
+    """ADMIN ONLY: Download all CSV data as ZIP file"""
+    try:
+        # Create in-memory ZIP file
+        memory_file = io.BytesIO()
+        
+        with ZipFile(memory_file, 'w') as zf:
+            # Add entry_data.csv (master file with entry/exit times)
+            if os.path.exists(ENTRY_DATA_FILE):
+                with open(ENTRY_DATA_FILE, 'rb') as f:
+                    zf.writestr('master_entry_exit_times.csv', f.read())
+            
+            # Add all employee time tracking files
+            if os.path.exists(TIME_TRACKING_DIR):
+                for filename in os.listdir(TIME_TRACKING_DIR):
+                    if filename.endswith('_time_tracking.csv'):
+                        file_path = os.path.join(TIME_TRACKING_DIR, filename)
+                        with open(file_path, 'rb') as f:
+                            zf.writestr(f'modules/{filename}', f.read())
+        
+        # Prepare download
+        memory_file.seek(0)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        return send_file(
+            memory_file,
+            mimetype='application/zip',
+            as_attachment=True,
+            download_name=f'roadshow_admin_data_{timestamp}.zip'
+        )
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error generating CSV files: {str(e)}'}), 500
+
 @app.route('/get-project-times')
 def get_project_times():
     """Get project times for leaderboard sorted by duration"""
