@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>EBI Comcast Roadshow - Teams</title>
+    <title>EBI Comcast Roadshow - Journey</title>
     <style>
         * {
             margin: 0;
@@ -13,72 +13,31 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #000000;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
             min-height: 100vh;
             padding: 20px;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 15px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 30px;
-        }
-
-        @media (max-width: 968px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 30px;
-        }
-
-        @media (max-width: 968px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
         }
 
         .header {
             background: #ffffff;
             border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
-            animation: fadeIn 0.5s ease-out;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .header-content {
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(255, 255, 255, 0.15);
             text-align: center;
+            animation: fadeInDown 0.6s ease-out;
         }
 
-        @keyframes fadeIn {
+        @keyframes fadeInDown {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateY(-30px);
             }
             to {
                 opacity: 1;
@@ -88,14 +47,21 @@
 
         .header h1 {
             color: #000000;
-            font-size: 2rem;
+            font-size: 2.5rem;
             margin-bottom: 10px;
             font-weight: 800;
         }
 
         .welcome-text {
-            color: #555;
-            font-size: 1.1rem;
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            color: #999;
+            font-size: 1rem;
+            font-style: italic;
         }
 
         .welcome-text .name {
@@ -134,144 +100,183 @@
             }
         }
 
-        .project-card {
-            border-radius: 20px;
-            padding: 28px;
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Roadmap Journey Container */
+        .roadmap-container {
+            background: #ffffff;
+            border-radius: 30px;
+            padding: 60px 40px;
+            box-shadow: 0 15px 50px rgba(255, 255, 255, 0.2);
             position: relative;
-            overflow: hidden;
-            animation: slideUp 0.5s ease-out backwards;
+            margin-bottom: 30px;
         }
 
-        .project-card:nth-child(1) { animation-delay: 0.1s; }
-        .project-card:nth-child(2) { animation-delay: 0.15s; }
-        .project-card:nth-child(3) { animation-delay: 0.2s; }
-        .project-card:nth-child(4) { animation-delay: 0.25s; }
-        .project-card:nth-child(5) { animation-delay: 0.3s; }
-        .project-card:nth-child(6) { animation-delay: 0.35s; }
-        .project-card:nth-child(7) { animation-delay: 0.4s; }
+        .roadmap-journey {
+            position: relative;
+            padding: 40px 0;
+        }
 
-        @keyframes slideUp {
+        /* Journey Step */
+        .journey-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 80px;
+            position: relative;
+            animation: fadeInStep 0.6s ease-out backwards;
+        }
+
+        .journey-step:nth-child(1) { animation-delay: 0.1s; }
+        .journey-step:nth-child(2) { animation-delay: 0.2s; }
+        .journey-step:nth-child(3) { animation-delay: 0.3s; }
+        .journey-step:nth-child(4) { animation-delay: 0.4s; }
+        .journey-step:nth-child(5) { animation-delay: 0.5s; }
+        .journey-step:nth-child(6) { animation-delay: 0.6s; }
+        .journey-step:nth-child(7) { animation-delay: 0.7s; }
+
+        @keyframes fadeInStep {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateX(-50px);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateX(0);
             }
         }
 
-        .project-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.15);
+        /* Zigzag alternating layout */
+        .journey-step:nth-child(even) {
+            flex-direction: row-reverse;
         }
 
-        .project-card:active {
-            transform: translateY(-4px);
+        .journey-step:nth-child(even) .step-connector {
+            transform: scaleX(-1);
         }
 
-        .project-number {
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
+        /* Step Circle */
+        .step-circle {
+            min-width: 120px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
+            background: linear-gradient(135deg, #000000 0%, #333333 100%);
+            color: white;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle:hover {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .step-circle:active {
+            transform: scale(1.05);
+        }
+
+        .step-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .step-icon {
+            font-size: 1.2rem;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        /* Step Content */
+        .step-content {
+            flex: 1;
+            padding: 0 40px;
+            max-width: 600px;
+        }
+
+        .step-title {
+            font-size: 1.8rem;
+            color: #000000;
             font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            color: #666;
+            font-size: 1rem;
             margin-bottom: 15px;
         }
 
-        .project-name {
-            font-size: 1.4rem;
-            color: #ffffff;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .project-info {
-            display: flex;
-            align-items: center;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.95rem;
-            margin-bottom: 8px;
-        }
-
-        .project-info .icon {
-            margin-right: 8px;
-        }
-
-        .estimated-time {
+        .step-time {
             display: inline-block;
-            background: rgba(255, 255, 255, 0.3);
-            color: #ffffff;
-            padding: 8px 16px;
+            background: #f0f0f0;
+            color: #333;
+            padding: 8px 20px;
             border-radius: 20px;
+            font-size: 0.9rem;
             font-weight: 600;
-            font-size: 0.9rem;
-            margin-top: 10px;
         }
 
-        .action-hint {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.85rem;
-            margin-top: 15px;
-            font-style: italic;
+        /* Connector Line */
+        .step-connector {
+            position: absolute;
+            top: 120px;
+            left: 60px;
+            width: 3px;
+            height: 80px;
+            background: linear-gradient(180deg, #000000 0%, transparent 100%);
+            z-index: 1;
         }
 
-        .footer {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        .journey-step:last-child .step-connector {
+            display: none;
         }
 
-        .footer p {
-            color: #666;
-            font-size: 0.9rem;
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .roadmap-container {
+                padding: 40px 20px;
+            }
+
+            .journey-step {
+                flex-direction: column !important;
+                margin-bottom: 60px;
+                text-align: center;
+            }
+
+            .journey-step:nth-child(even) {
+                flex-direction: column !important;
+            }
+
+            .step-circle {
+                width: 100px;
+                height: 100px;
+                margin-bottom: 20px;
+            }
+
+            .step-number {
+                font-size: 2rem;
+            }
+
+            .step-content {
+                padding: 0;
+            }
+
+            .step-connector {
+                left: 50%;
+                transform: translateX(-50%);
+            }
         }
 
-        /* Leaderboard Styles - HIDDEN IN UI */
+        /* Leaderboard - HIDDEN */
         .leaderboard {
-            display: none; /* Hidden from UI */
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 28px;
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
-            position: sticky;
-            top: 20px;
+            display: none;
         }
-
-        .leaderboard h2 {
-            color: #000000;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            font-weight: 800;
-        }
-
-        .leaderboard-item {
-            padding: 14px;
-            margin-bottom: 12px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            border-left: 4px solid #000000;
-        }
-
-        .leaderboard-item:hover {
-            transform: translateX(5px);
-            background: #e9ecef;
-        }
-
-        .leaderboard-item-name {
-            font-weight: 600;
             color: #000000;
             font-size: 0.95rem;
             margin-bottom: 4px;
@@ -292,67 +297,51 @@
             font-style: italic;
         }
 
-        /* Logout Button Styles */
+        /* Logout Button */
         .logout-btn {
             background: #FF0000;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-size: 0.9rem;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            align-self: flex-end;
-            min-height: 44px;
+            gap: 10px;
+            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.3);
         }
 
         .logout-btn:hover {
             background: #cc0000;
-            transform: scale(1.05);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
         }
 
         .logout-btn:active {
-            transform: scale(0.95);
+            transform: translateY(0);
         }
 
         @media (max-width: 768px) {
             .header h1 {
-                font-size: 1.4rem;
-                margin-bottom: 8px;
+                font-size: 1.8rem;
             }
 
             .welcome-text {
-                font-size: 0.95rem;
+                font-size: 1rem;
             }
 
-            .project-name {
-                font-size: 1.1rem;
-            }
-
-            .project-card {
-                padding: 20px;
+            .subtitle {
+                font-size: 0.9rem;
             }
 
             .logout-btn {
-                font-size: 0.85rem;
-                padding: 8px 16px;
-            }
-
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .leaderboard {
-                position: static;
+                padding: 12px 30px;
+                font-size: 1rem;
             }
         }
-
-        @media (max-width: 480px) {
-            .header h1 {
                 font-size: 1.2rem;
             }
 
@@ -406,37 +395,120 @@
 <body>
     <div class="container">
         <div class="header">
-            <button class="logout-btn" onclick="handleLogout()">
-                <span>🚪</span>
-                <span>Logout</span>
-            </button>
-            <div class="header-content">
-                <h1>🚀 EBI Comcast Roadshow - Explore Our Teams</h1>
-                <p class="welcome-text">Welcome, <span class="name">{{ employee_name }}</span>! Select a team to discover innovation.</p>
+            <h1>🚀 DataWorks Roadshow Journey</h1>
+            <p class="welcome-text">Welcome, {{ employee_name }}!</p>
+            <p class="subtitle">Follow the path and explore all 7 teams</p>
+        </div>
+
+        <div class="roadmap-container">
+            <div class="roadmap-journey">
+                <!-- Step 1 -->
+                <div class="journey-step" onclick="goToProject('1')">
+                    <div class="step-circle">
+                        <div class="step-number">1</div>
+                        <div class="step-icon">🎯</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Framework</div>
+                        <div class="step-description">Start your journey with our foundational framework team</div>
+                        <div class="step-time">⏱️ 15 minutes</div>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="journey-step" onclick="goToProject('2')">
+                    <div class="step-circle">
+                        <div class="step-number">2</div>
+                        <div class="step-icon">💡</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Solution</div>
+                        <div class="step-description">Discover innovative solutions for modern challenges</div>
+                        <div class="step-time">⏱️ 15 minutes</div>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="journey-step" onclick="goToProject('3')">
+                    <div class="step-circle">
+                        <div class="step-number">3</div>
+                        <div class="step-icon">📊</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Data Analytics Team</div>
+                        <div class="step-description">Transform data into actionable insights</div>
+                        <div class="step-time">⏱️ 15 minutes</div>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="journey-step" onclick="goToProject('4')">
+                    <div class="step-circle">
+                        <div class="step-number">4</div>
+                        <div class="step-icon">🤖</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Machine Learning Team</div>
+                        <div class="step-description">Harness the power of intelligent algorithms</div>
+                        <div class="step-time">⏱️ 15 minutes</div>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="journey-step" onclick="goToProject('5')">
+                    <div class="step-circle">
+                        <div class="step-number">5</div>
+                        <div class="step-icon">🧠</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Artificial Intelligence Team</div>
+                        <div class="step-description">Experience the future of AI innovation</div>
+                        <div class="step-time">⏱️ 15 minutes</div>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="journey-step" onclick="goToProject('6')">
+                    <div class="step-circle">
+                        <div class="step-number">6</div>
+                        <div class="step-icon">📈</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Market Team</div>
+                        <div class="step-description">Understand market trends and strategies</div>
+                        <div class="step-time">⏱️ 15 minutes</div>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <!-- Step 7 -->
+                <div class="journey-step" onclick="goToProject('7')">
+                    <div class="step-circle">
+                        <div class="step-number">7</div>
+                        <div class="step-icon">📧</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Email Campaign Team</div>
+                        <div class="step-description">Master digital marketing and engagement</div>
+                        <div class="step-time">⏱️ 15 minutes</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="main-content">
-            <div class="projects-section">
-                <div class="projects-grid">
-                    {% for id, project in projects.items() %}
-                    <div class="project-card" onclick="goToProject('{{ id }}')">
-                        <div class="project-number">{{ id }}</div>
-                        <div class="project-name">{{ project.name }}</div>
-                        <div class="project-info">
-                            <span class="icon">⏱️</span>
-                            <span>Estimated Time</span>
-                        </div>
-                        <div class="estimated-time">{{ project.estimated_time }}</div>
-                        <div class="action-hint">Tap to visit this team →</div>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <div class="footer">
-                    <p>📱 Select a team above to scan its QR code and start exploring!</p>
-                </div>
-            </div>
+        <!-- Logout Button -->
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="logout-btn" onclick="handleLogout()">
+                <span>🚪</span>
+                <span>Logout & Download Data</span>
+            </button>
+        </div>
+    </div>
 
             <!-- Leaderboard Section -->
             <div class="leaderboard">
