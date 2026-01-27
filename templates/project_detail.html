@@ -529,8 +529,25 @@
         }
 
         async function goBack() {
+            // Show loading state
+            const backButton = document.querySelector('.back-button');
+            const originalText = backButton.innerHTML;
+            backButton.innerHTML = '<span class="arrow">←</span><span>Returning...</span>';
+            backButton.disabled = true;
+            
+            // Stop scanner if running
+            if (html5QrCode) {
+                try {
+                    await html5QrCode.stop();
+                    html5QrCode.clear();
+                } catch (err) {
+                    console.error('Error stopping scanner:', err);
+                }
+                html5QrCode = null;
+            }
+            
             if (projectStarted) {
-                // End project and record time without confirmation
+                // End project and record time
                 try {
                     const response = await fetch(`/end-project/{{ project_id }}`, {
                         method: 'POST',
@@ -545,18 +562,19 @@
                         if (timerInterval) {
                             clearInterval(timerInterval);
                         }
-                        // Redirect without alert
-                        window.location.href = '/projects';
-                    } else {
-                        throw new Error(result.message);
                     }
                 } catch (error) {
-                    // Redirect anyway even on error
-                    window.location.href = '/projects';
+                    console.error('Error ending project:', error);
                 }
-            } else {
-                window.location.href = '/projects';
             }
+            
+            // Clear timer if running
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            // Always redirect to teams page
+            window.location.href = '/projects';
         }
 
         // Cleanup timer on page unload
