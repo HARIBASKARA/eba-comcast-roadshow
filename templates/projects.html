@@ -461,26 +461,8 @@
                     }
                 });
                 
-                const data = await response.json();
-                
-                // Download CSV files if available
-                if (data.success && data.download_csv) {
-                    // Trigger download of CSV files
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = '/download-csv-files';
-                    downloadLink.download = 'roadshow_data.zip';
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
-                    document.body.removeChild(downloadLink);
-                    
-                    // Wait a moment for download to start, then redirect
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 1000);
-                } else {
-                    // Redirect immediately if no download
-                    window.location.href = '/';
-                }
+                // Redirect immediately - CSV files saved on server for admin
+                window.location.href = '/';
             } catch (error) {
                 // Redirect anyway even on error
                 window.location.href = '/';

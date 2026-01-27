@@ -42,7 +42,7 @@ os.makedirs(TIME_TRACKING_DIR, exist_ok=True)
 if not os.path.exists(ENTRY_DATA_FILE):
     with open(ENTRY_DATA_FILE, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['Employee ID', 'Name', 'Email', 'Entry Timestamp'])
+        writer.writerow(['Employee ID', 'Name', 'Email', 'Entry Timestamp', 'Exit Timestamp'])
 
 # Project configuration
 PROJECTS = {
@@ -96,7 +96,7 @@ def submit_entry():
     if 'project_times' not in session:
         session['project_times'] = {}
     
-    # Log entry data to CSV
+    # Log entry data to CSV (exit time will be updated on logout)
     entry_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     with open(ENTRY_DATA_FILE, 'a', newline='') as f:
         writer = csv.writer(f)
@@ -206,6 +206,29 @@ def end_project(project_id):
         'time_spent': round(time_spent, 2),
         'project_name': PROJECTS[project_id]['name']
     })
+
+def update_exit_time(employee_id):
+    """Update exit timestamp for employee in entry_data.csv"""
+    if not os.path.exists(ENTRY_DATA_FILE):
+        return
+    
+    exit_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Read all rows
+    rows = []
+    with open(ENTRY_DATA_FILE, 'r', newline='') as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames
+        for row in reader:
+            if row['Employee ID'] == employee_id:
+                row['Exit Timestamp'] = exit_timestamp
+            rows.append(row)
+    
+    # Write back all rows
+    with open(ENTRY_DATA_FILE, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
 
 def save_time_tracking(employee_id, project_id, time_spent):
     """Save time tracking data to employee-specific CSV file"""
@@ -527,7 +550,7 @@ def send_summary_email(employee_name, employee_email, employee_id, entry_time, p
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    """Handle logout and send summary email"""
+    """Handle logout, update exit time in CSV, and send summary email"""
     try:
         # Get session data before clearing
         employee_name = session.get('name', 'Guest')
@@ -535,6 +558,10 @@ def logout():
         employee_id = session.get('employee_id')
         entry_time = session.get('entry_time')
         project_times = session.get('project_times', {})
+        
+        # Update exit time in entry_data.csv
+        if employee_id:
+            update_exit_time(employee_id)
         
         # Send email if we have an email address (with timeout to prevent hanging)
         email_sent = False
@@ -551,8 +578,7 @@ def logout():
         return jsonify({
             'success': True,
             'email_sent': email_sent,
-            'message': 'Logged out successfully' + (' - Email sent!' if email_sent else ''),
-            'download_csv': True  # Signal to download CSV files
+            'message': 'Logged out successfully' + (' - Email sent!' if email_sent else '')
         })
     except Exception as e:
         # Clear session anyway
@@ -561,83 +587,6 @@ def logout():
             'success': False,
             'message': f'Logout completed but error occurred: {str(e)}'
         })
-
-@app.route('/download-csv-files')
-def download_csv_files():
-    """Generate and download both CSV files in a ZIP archive"""
-    try:
-        # Create in-memory ZIP file
-        memory_file = io.BytesIO()
-        
-        with ZipFile(memory_file, 'w') as zf:
-            # CSV 1: Master Summary (Employee ID, Name, Entry Time, Exit Time)
-            master_csv = io.StringIO()
-            master_writer = csv.writer(master_csv)
-            master_writer.writerow(['Employee ID', 'Employee Name', 'Time of Entry', 'Time of Exit'])
-            
-            # Read entry data and add exit times
-            if os.path.exists(ENTRY_DATA_FILE):
-                with open(ENTRY_DATA_FILE, 'r', newline='') as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        emp_id = row.get('Employee ID', '')
-                        if emp_id:  # Skip empty rows
-                            name = row.get('Name', '')
-                            entry_time = row.get('Entry Timestamp', '')
-                            exit_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                            master_writer.writerow([emp_id, name, entry_time, exit_time])
-            
-            # Add master CSV to ZIP
-            zf.writestr('master_summary.csv', master_csv.getvalue())
-            
-            # CSV 2: Per-employee time tracking (one file per employee with 7 modules)
-            if os.path.exists(TIME_TRACKING_DIR):
-                for filename in os.listdir(TIME_TRACKING_DIR):
-                    if filename.endswith('_time_tracking.csv'):
-                        emp_id = filename.replace('_time_tracking.csv', '')
-                        
-                        # Read existing time tracking data
-                        file_path = os.path.join(TIME_TRACKING_DIR, filename)
-                        employee_csv = io.StringIO()
-                        employee_writer = csv.writer(employee_csv)
-                        
-                        # Write header with all 7 modules
-                        employee_writer.writerow(['Employee ID', 'Module 1 (minutes)', 'Module 2 (minutes)', 
-                                                 'Module 3 (minutes)', 'Module 4 (minutes)', 
-                                                 'Module 5 (minutes)', 'Module 6 (minutes)', 
-                                                 'Module 7 (minutes)'])
-                        
-                        # Read and write data
-                        with open(file_path, 'r', newline='') as f:
-                            reader = csv.DictReader(f)
-                            for row in reader:
-                                employee_writer.writerow([
-                                    row.get('Employee ID', emp_id),
-                                    row.get('Module 1 (minutes)', '0'),
-                                    row.get('Module 2 (minutes)', '0'),
-                                    row.get('Module 3 (minutes)', '0'),
-                                    row.get('Module 4 (minutes)', '0'),
-                                    row.get('Module 5 (minutes)', '0'),
-                                    row.get('Module 6 (minutes)', '0'),
-                                    row.get('Module 7 (minutes)', '0')
-                                ])
-                        
-                        # Add to ZIP
-                        zf.writestr(f'employee_{emp_id}_modules.csv', employee_csv.getvalue())
-        
-        # Prepare download
-        memory_file.seek(0)
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        
-        return send_file(
-            memory_file,
-            mimetype='application/zip',
-            as_attachment=True,
-            download_name=f'roadshow_data_{timestamp}.zip'
-        )
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': f'Error generating CSV files: {str(e)}'}), 500
 
 @app.route('/get-project-times')
 def get_project_times():
