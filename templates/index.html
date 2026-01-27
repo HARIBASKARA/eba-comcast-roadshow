@@ -191,11 +191,6 @@
 
         <form id="entryForm">
             <div class="form-group">
-                <label for="employee_id">Employee ID *</label>
-                <input type="text" id="employee_id" name="employee_id" required placeholder="Enter your Employee ID">
-            </div>
-
-            <div class="form-group">
                 <label for="email">Email Address *</label>
                 <input type="email" id="email" name="email" required placeholder="your.email@example.com">
             </div>
@@ -230,7 +225,6 @@
             
             // Get form data
             const formData = {
-                employee_id: document.getElementById('employee_id').value.trim(),
                 email: document.getElementById('email').value.trim(),
                 name: document.getElementById('name').value.trim()
             };
@@ -279,7 +273,7 @@
                 const redirectMsg = document.getElementById('redirectMessage');
                 redirectMsg.style.display = 'block';
                 // Auto-focus on first input
-                document.getElementById('employee_id').focus();
+                document.getElementById('email').focus();
             }
         });
     </script>

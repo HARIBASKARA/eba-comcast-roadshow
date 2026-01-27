@@ -35,6 +35,11 @@ except ImportError:
 ENTRY_DATA_FILE = 'entry_data.csv'
 TIME_TRACKING_DIR = 'time_tracking'
 
+# Helper function to sanitize email for file naming
+def sanitize_email_for_filename(email):
+    """Convert email to safe filename (replace @ and . with _)"""
+    return email.replace('@', '_at_').replace('.', '_')
+
 # Ensure directories exist
 os.makedirs(TIME_TRACKING_DIR, exist_ok=True)
 
@@ -42,7 +47,7 @@ os.makedirs(TIME_TRACKING_DIR, exist_ok=True)
 if not os.path.exists(ENTRY_DATA_FILE):
     with open(ENTRY_DATA_FILE, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['Employee ID', 'Name', 'Email', 'Entry Timestamp', 'Exit Timestamp'])
+        writer.writerow(['Email', 'Name', 'Entry Timestamp', 'Exit Timestamp'])
 
 # Project configuration
 PROJECTS = {
@@ -64,11 +69,10 @@ def index():
 def submit_entry():
     """Handle employee entry data submission"""
     data = request.json
-    employee_id = data.get('employee_id')
     name = data.get('name')
     email = data.get('email')
     
-    if not all([employee_id, name, email]):
+    if not all([name, email]):
         return jsonify({'success': False, 'message': 'All fields are required'}), 400
     
     # Validate email format
@@ -76,20 +80,17 @@ def submit_entry():
     if not re.match(email_pattern, email):
         return jsonify({'success': False, 'message': 'Invalid email format. Please enter a valid email address.'}), 400
     
-    # Check for duplicate employee ID or email
+    # Check for duplicate email
     if os.path.exists(ENTRY_DATA_FILE):
         with open(ENTRY_DATA_FILE, 'r', newline='') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                if row['Employee ID'] == employee_id:
-                    return jsonify({'success': False, 'message': 'This Employee ID has already been registered.'}), 400
                 if row['Email'].lower() == email.lower():
                     return jsonify({'success': False, 'message': 'This Email ID has already been registered.'}), 400
     
-    # Save to session
-    session['employee_id'] = employee_id
-    session['name'] = name
+    # Save to session (use email as the unique identifier)
     session['email'] = email
+    session['name'] = name
     session['entry_time'] = datetime.now().isoformat()
     
     # Initialize project times tracking in session
@@ -100,7 +101,7 @@ def submit_entry():
     entry_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     with open(ENTRY_DATA_FILE, 'a', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow([employee_id, name, email, entry_timestamp])
+        writer.writerow([email, name, entry_timestamp, ''])
     
     # Check if there's an intended project to redirect to
     intended_project = session.pop('intended_project', None)
@@ -113,7 +114,7 @@ def submit_entry():
 @app.route('/projects')
 def projects():
     """Display all projects"""
-    if 'employee_id' not in session:
+    if 'email' not in session:
         return render_template('index.html')
     
     # Get project times from session
@@ -158,7 +159,7 @@ def project_detail(project_id):
 def start_project(project_id):
     """Record start time when QR is scanned at project - MUST be registered"""
     # Security check: Must be registered
-    if 'employee_id' not in session:
+    if 'email' not in session:
         return jsonify({'success': False, 'message': 'Please register at entrance first'}), 401
     
     if project_id not in PROJECTS:
@@ -177,7 +178,7 @@ def start_project(project_id):
 @app.route('/end-project/<project_id>', methods=['POST'])
 def end_project(project_id):
     """Calculate time spent when user returns to main menu"""
-    if 'employee_id' not in session:
+    if 'email' not in session:
         return jsonify({'success': False, 'message': 'Not logged in'}), 401
     
     if project_id not in PROJECTS:
@@ -199,7 +200,7 @@ def end_project(project_id):
     session.modified = True
     
     # Save to CSV file for this employee
-    save_time_tracking(session['employee_id'], project_id, time_spent)
+    save_time_tracking(session['email'], project_id, time_spent)
     
     return jsonify({
         'success': True, 
@@ -207,7 +208,7 @@ def end_project(project_id):
         'project_name': PROJECTS[project_id]['name']
     })
 
-def update_exit_time(employee_id):
+def update_exit_time(email):
     """Update exit timestamp for employee in entry_data.csv"""
     if not os.path.exists(ENTRY_DATA_FILE):
         return
@@ -220,7 +221,7 @@ def update_exit_time(employee_id):
         reader = csv.DictReader(f)
         fieldnames = reader.fieldnames
         for row in reader:
-            if row['Employee ID'] == employee_id:
+            if row['Email'].lower() == email.lower():
                 row['Exit Timestamp'] = exit_timestamp
             rows.append(row)
     
@@ -230,9 +231,10 @@ def update_exit_time(employee_id):
         writer.writeheader()
         writer.writerows(rows)
 
-def save_time_tracking(employee_id, project_id, time_spent):
+def save_time_tracking(email, project_id, time_spent):
     """Save time tracking data to employee-specific CSV file"""
-    file_path = os.path.join(TIME_TRACKING_DIR, f'{employee_id}_time_tracking.csv')
+    safe_filename = sanitize_email_for_filename(email)
+    file_path = os.path.join(TIME_TRACKING_DIR, f'{safe_filename}_time_tracking.csv')
     
     # Check if file exists
     file_exists = os.path.exists(file_path)
@@ -248,11 +250,11 @@ def save_time_tracking(employee_id, project_id, time_spent):
     
     # Update project time
     project_key = f'Module {project_id} (minutes)'
-    project_data['Employee ID'] = employee_id
+    project_data['Email'] = email
     project_data[project_key] = time_spent
     
     # Write updated data
-    fieldnames = ['Employee ID'] + [f'Module {i} (minutes)' for i in range(1, 8)]
+    fieldnames = ['Email'] + [f'Module {i} (minutes)' for i in range(1, 8)]
     with open(file_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
@@ -262,12 +264,12 @@ def save_time_tracking(employee_id, project_id, time_spent):
 def get_session_data():
     """Get current session data for debugging"""
     return jsonify({
-        'employee_id': session.get('employee_id'),
+        'email': session.get('email'),
         'name': session.get('name'),
         'project_times': session.get('project_times', {})
     })
 
-def send_summary_email(employee_name, employee_email, employee_id, entry_time, project_times):
+def send_summary_email(employee_name, employee_email, entry_time, project_times):
     """Send summary email to the employee after logout"""
     try:
         # Prepare email subject and body
@@ -444,7 +446,6 @@ def send_summary_email(employee_name, employee_email, employee_id, entry_time, p
                         <div class="entry-info">
                             <p><strong>📅 You entered the roadshow at:</strong></p>
                             <p style="font-size: 18px; margin-top: 8px;">{formatted_entry_time}</p>
-                            <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Employee ID: {employee_id}</p>
                         </div>
                         
                         <div class="section-title">📊 Modules Visited</div>
@@ -555,19 +556,18 @@ def logout():
         # Get session data before clearing
         employee_name = session.get('name', 'Guest')
         employee_email = session.get('email')
-        employee_id = session.get('employee_id')
         entry_time = session.get('entry_time')
         project_times = session.get('project_times', {})
         
         # Update exit time in entry_data.csv
-        if employee_id:
-            update_exit_time(employee_id)
+        if employee_email:
+            update_exit_time(employee_email)
         
         # Send email if we have an email address (with timeout to prevent hanging)
         email_sent = False
-        if employee_email and employee_id and entry_time:
+        if employee_email and entry_time:
             try:
-                email_sent = send_summary_email(employee_name, employee_email, employee_id, entry_time, project_times)
+                email_sent = send_summary_email(employee_name, employee_email, entry_time, project_times)
             except Exception as email_error:
                 print(f"Email sending failed (non-critical): {str(email_error)}")
                 email_sent = False
