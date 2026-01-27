@@ -132,7 +132,7 @@ def project_detail(project_id):
     verify_id = request.args.get('verify')
     
     # Check if registered
-    if 'employee_id' not in session or 'name' not in session or 'email' not in session:
+    if 'email' not in session or 'name' not in session:
         # Not registered - store intended project and redirect to entrance
         session['intended_project'] = project_id
         if verify_id:
