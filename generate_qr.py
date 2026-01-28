@@ -1,6 +1,6 @@
 """
 QR Code Generator for EBI Comcast Roadshow
-Generates QR codes for entrance and all 7 team stations
+Generates QR codes for entrance and all 6 team stations
 """
 
 import qrcode
@@ -104,11 +104,10 @@ def main():
         '3': 'Data Analytics Team',
         '4': 'Machine Learning Team',
         '5': 'Artificial Intelligence Team',
-        '6': 'Market Team',
-        '7': 'Email Campaign Team'
+        '6': 'Market Team'
     }
     
-    for i in range(1, 8):
+    for i in range(1, 7):
         # Create ONE QR per team - contains team URL for access AND team ID for verification
         # Format: URL?verify=ID (e.g., /project/1?verify=1)
         team_url = f"{SERVER_URL}/project/{i}?verify={i}"
@@ -124,7 +123,7 @@ def main():
     print(f"📁 QR codes saved in: {os.path.abspath(QR_DIR)}")
     print("\n📋 Instructions:")
     print("1. Print entrance_qr.png - Place at roadshow entrance")
-    print("2. Print team_1_qr.png through team_7_qr.png")
+    print("2. Print team_1_qr.png through team_6_qr.png")
     print("3. Place each team QR at its physical station")
     print("\n💡 Flow for registered user:")
     print("   1. Scan entrance → Register")

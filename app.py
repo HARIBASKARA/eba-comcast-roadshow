@@ -56,8 +56,7 @@ PROJECTS = {
     '3': {'name': 'Data Analytics Team', 'estimated_time': '15 minutes'},
     '4': {'name': 'Machine Learning Team', 'estimated_time': '15 minutes'},
     '5': {'name': 'Artificial Intelligence Team', 'estimated_time': '15 minutes'},
-    '6': {'name': 'Market Team', 'estimated_time': '15 minutes'},
-    '7': {'name': 'Email Campaign Team', 'estimated_time': '15 minutes'}
+    '6': {'name': 'Market Team', 'estimated_time': '15 minutes'}
 }
 
 @app.route('/')
@@ -252,7 +251,7 @@ def save_time_tracking(email, project_id, time_spent):
     project_data[project_key] = time_spent
     
     # Write updated data
-    fieldnames = ['Email'] + [f'Module {i} (minutes)' for i in range(1, 8)]
+    fieldnames = ['Email'] + [f'Module {i} (minutes)' for i in range(1, 7)]
     with open(file_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
