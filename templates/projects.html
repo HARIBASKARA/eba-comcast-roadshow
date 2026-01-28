@@ -104,7 +104,7 @@
         .roadmap-container {
             background: linear-gradient(180deg, #FFF9F0 0%, #FFE8D6 100%);
             border-radius: 30px;
-            padding: 60px 20px;
+            padding: 60px 40px;
             box-shadow: 0 15px 50px rgba(255, 255, 255, 0.2);
             position: relative;
             margin-bottom: 30px;
@@ -113,15 +113,43 @@
 
         .roadmap-journey {
             position: relative;
-            padding: 20px 0;
+            width: 100%;
+            min-height: 2000px;
         }
 
-        /* Road Lane - Each step has its own horizontal road */
+        /* SVG Curved Road Path */
+        .road-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .road-path {
+            fill: none;
+            stroke-width: 80;
+            stroke-linecap: round;
+        }
+
+        /* Dashed center line */
+        .road-centerline {
+            fill: none;
+            stroke: white;
+            stroke-width: 4;
+            stroke-dasharray: 30 20;
+            opacity: 0.6;
+            stroke-linecap: round;
+        }
+
+        /* Journey Steps positioned on the road */
         .journey-step {
-            position: relative;
-            margin-bottom: 120px;
+            position: absolute;
+            z-index: 10;
             cursor: pointer;
-            animation: slideIn 0.8s ease-out backwards;
+            transition: transform 0.3s ease;
+            animation: fadeIn 0.8s ease-out backwards;
         }
 
         .journey-step:nth-child(1) { animation-delay: 0.1s; }
@@ -131,156 +159,112 @@
         .journey-step:nth-child(5) { animation-delay: 0.5s; }
         .journey-step:nth-child(6) { animation-delay: 0.6s; }
 
-        @keyframes slideIn {
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: scale(0.8);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: scale(1);
             }
         }
 
-        /* Road Path - Horizontal curved road */
-        .road-path {
-            position: relative;
-            height: 100px;
-            background: linear-gradient(180deg, #4CAF50 0%, #388E3C 100%);
-            border-radius: 50px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            transition: all 0.3s ease;
+        .journey-step:hover {
+            transform: scale(1.05);
         }
 
-        .journey-step:nth-child(2) .road-path {
-            background: linear-gradient(180deg, #FFC107 0%, #FFA000 100%);
-        }
-
-        .journey-step:nth-child(3) .road-path {
-            background: linear-gradient(180deg, #FF9800 0%, #F57C00 100%);
-        }
-
-        .journey-step:nth-child(4) .road-path {
-            background: linear-gradient(180deg, #E91E63 0%, #C2185B 100%);
-        }
-
-        .journey-step:nth-child(5) .road-path {
-            background: linear-gradient(180deg, #9C27B0 0%, #7B1FA2 100%);
-        }
-
-        .journey-step:nth-child(6) .road-path {
-            background: linear-gradient(180deg, #2196F3 0%, #1976D2 100%);
-        }
-
-        /* Visited road turns green */
-        .journey-step.visited .road-path {
-            background: linear-gradient(180deg, #28a745 0%, #1e7e34 100%) !important;
-            box-shadow: 0 8px 30px rgba(40, 167, 69, 0.5);
-        }
-
-        /* Dashed white lane markings */
-        .road-path::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background-image: repeating-linear-gradient(
-                90deg,
-                white 0px,
-                white 30px,
-                transparent 30px,
-                transparent 60px
-            );
-            transform: translateY(-50%);
-            opacity: 0.6;
-        }
-
-        /* Road hover effect */
-        .journey-step:hover .road-path {
-            transform: scale(1.02);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Step Content Container */
-        .step-info {
-            position: absolute;
-            top: -60px;
-            left: 40px;
-            z-index: 10;
-        }
-
-        /* Step Number */
+        /* Step Number Circle */
         .step-number-badge {
-            display: inline-block;
-            background: #000;
-            color: white;
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #000 0%, #333 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 900;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            margin-bottom: 10px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            margin: 0 auto 15px;
+            transition: all 0.3s ease;
         }
 
         .journey-step.visited .step-number-badge {
-            background: #28a745;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            box-shadow: 0 8px 30px rgba(40, 167, 69, 0.5);
         }
 
-        /* Step Text */
+        /* Checkmark overlay for visited */
+        .journey-step.visited .step-number-badge::after {
+            content: '✓';
+            position: absolute;
+            font-size: 3rem;
+        }
+
+        /* Step Text Container */
+        .step-info {
+            text-align: center;
+            max-width: 300px;
+        }
+
         .step-title {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             color: #000;
             font-weight: 800;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
         }
 
         .step-description {
             font-size: 0.95rem;
             color: #555;
-            max-width: 400px;
             line-height: 1.4;
         }
 
-        /* Cartoon Character on Road */
+        /* Character Icons */
         .road-character {
-            position: absolute;
-            bottom: 10px;
-            right: 80px;
-            font-size: 4rem;
-            z-index: 5;
-            transition: all 0.3s ease;
-            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+            font-size: 3.5rem;
+            margin: 10px 0;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.2));
         }
 
-        .journey-step:hover .road-character {
-            transform: scale(1.1) rotate(5deg);
+        /* Positioning for each step */
+        /* Step 1 - Top Left */
+        .journey-step:nth-child(1) {
+            top: 50px;
+            left: 10%;
         }
 
-        /* Checkmark for visited */
-        .journey-step.visited .road-character::after {
-            content: '✓';
-            position: absolute;
-            top: -20px;
-            right: -20px;
-            background: #28a745;
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: bold;
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.5);
+        /* Step 2 - Right */
+        .journey-step:nth-child(2) {
+            top: 350px;
+            right: 10%;
+        }
+
+        /* Step 3 - Left */
+        .journey-step:nth-child(3) {
+            top: 650px;
+            left: 10%;
+        }
+
+        /* Step 4 - Right */
+        .journey-step:nth-child(4) {
+            top: 950px;
+            right: 10%;
+        }
+
+        /* Step 5 - Left */
+        .journey-step:nth-child(5) {
+            top: 1250px;
+            left: 10%;
+        }
+
+        /* Step 6 - Bottom Right */
+        .journey-step:nth-child(6) {
+            top: 1550px;
+            right: 10%;
         }
 
         /* Mobile Responsive */
@@ -290,7 +274,7 @@
             }
 
             .roadmap-container {
-                padding: 40px 10px;
+                padding: 30px 15px;
             }
 
             .header {
@@ -310,45 +294,69 @@
                 font-size: 0.85rem;
             }
 
-            .journey-step {
-                margin-bottom: 100px;
-            }
-
-            .road-path {
-                height: 80px;
-            }
-
-            .step-info {
-                top: -50px;
-                left: 20px;
+            .roadmap-journey {
+                min-height: 2200px;
             }
 
             .step-number-badge {
-                width: 50px;
-                height: 50px;
-                font-size: 1.5rem;
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
+
+            .journey-step.visited .step-number-badge::after {
+                font-size: 2.2rem;
             }
 
             .step-title {
-                font-size: 1.3rem;
+                font-size: 1.4rem;
             }
 
             .step-description {
                 font-size: 0.85rem;
-                max-width: 250px;
+            }
+
+            .step-info {
+                max-width: 220px;
             }
 
             .road-character {
-                font-size: 3rem;
-                right: 40px;
+                font-size: 2.5rem;
             }
 
-            .journey-step.visited .road-character::after {
-                width: 40px;
-                height: 40px;
-                font-size: 1.5rem;
-                top: -15px;
-                right: -15px;
+            /* Adjust step positions for mobile */
+            .journey-step:nth-child(1) {
+                left: 5%;
+                top: 50px;
+            }
+
+            .journey-step:nth-child(2) {
+                right: 5%;
+                top: 380px;
+            }
+
+            .journey-step:nth-child(3) {
+                left: 5%;
+                top: 710px;
+            }
+
+            .journey-step:nth-child(4) {
+                right: 5%;
+                top: 1040px;
+            }
+
+            .journey-step:nth-child(5) {
+                left: 5%;
+                top: 1370px;
+            }
+
+            .journey-step:nth-child(6) {
+                right: 5%;
+                top: 1700px;
+            }
+
+            .road-path {
+                stroke-width: 60;
             }
 
             .logout-btn {
@@ -419,75 +427,109 @@
 
         <div class="roadmap-container">
             <div class="roadmap-journey">
+                <!-- SVG Curved Road Path -->
+                <svg class="road-svg" viewBox="0 0 800 2000" preserveAspectRatio="xMidYMid meet">
+                    <!-- Road gradient with colorful sections -->
+                    <defs>
+                        <linearGradient id="roadGradient1" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:1" />
+                            <stop offset="16%" style="stop-color:#FFC107;stop-opacity:1" />
+                            <stop offset="33%" style="stop-color:#FF9800;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#E91E63;stop-opacity:1" />
+                            <stop offset="66%" style="stop-color:#9C27B0;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#2196F3;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Main curved road path -->
+                    <path class="road-path" 
+                          d="M 150 80 
+                             Q 100 150, 200 250
+                             Q 300 350, 600 380
+                             Q 700 390, 650 480
+                             Q 600 570, 200 600
+                             Q 100 610, 150 700
+                             Q 200 790, 600 880
+                             Q 700 920, 650 1010
+                             Q 600 1100, 200 1130
+                             Q 100 1140, 150 1230
+                             Q 200 1320, 600 1410
+                             Q 700 1450, 650 1540"
+                          stroke="url(#roadGradient1)" />
+                    
+                    <!-- White dashed center line -->
+                    <path class="road-centerline" 
+                          d="M 150 80 
+                             Q 100 150, 200 250
+                             Q 300 350, 600 380
+                             Q 700 390, 650 480
+                             Q 600 570, 200 600
+                             Q 100 610, 150 700
+                             Q 200 790, 600 880
+                             Q 700 920, 650 1010
+                             Q 600 1100, 200 1130
+                             Q 100 1140, 150 1230
+                             Q 200 1320, 600 1410
+                             Q 700 1450, 650 1540" />
+                </svg>
+
                 <!-- Step 1: PMO -->
                 <div class="journey-step {% if '1' in visited_teams %}visited{% endif %}" onclick="goToProject('1')">
-                    <div class="road-path">
-                        <div class="step-info">
-                            <div class="step-number-badge">1</div>
-                            <div class="step-title">PMO</div>
-                            <div class="step-description">Start your journey with our foundational framework team</div>
-                        </div>
+                    <div class="step-info">
+                        <div class="step-number-badge">1</div>
                         <div class="road-character">🎯</div>
+                        <div class="step-title">PMO</div>
+                        <div class="step-description">Start your journey with our foundational framework team</div>
                     </div>
                 </div>
 
                 <!-- Step 2: Data & Governance -->
                 <div class="journey-step {% if '2' in visited_teams %}visited{% endif %}" onclick="goToProject('2')">
-                    <div class="road-path">
-                        <div class="step-info">
-                            <div class="step-number-badge">2</div>
-                            <div class="step-title">Data & Governance</div>
-                            <div class="step-description">Discover innovative solutions for modern challenges</div>
-                        </div>
+                    <div class="step-info">
+                        <div class="step-number-badge">2</div>
                         <div class="road-character">🔐</div>
+                        <div class="step-title">Data & Governance</div>
+                        <div class="step-description">Discover innovative solutions for modern challenges</div>
                     </div>
                 </div>
 
                 <!-- Step 3: Analytics & Reporting -->
                 <div class="journey-step {% if '3' in visited_teams %}visited{% endif %}" onclick="goToProject('3')">
-                    <div class="road-path">
-                        <div class="step-info">
-                            <div class="step-number-badge">3</div>
-                            <div class="step-title">Analytics & Reporting</div>
-                            <div class="step-description">Transform data into actionable insights</div>
-                        </div>
+                    <div class="step-info">
+                        <div class="step-number-badge">3</div>
                         <div class="road-character">📊</div>
+                        <div class="step-title">Analytics & Reporting</div>
+                        <div class="step-description">Transform data into actionable insights</div>
                     </div>
                 </div>
 
                 <!-- Step 4: Machine Learning Solutions -->
                 <div class="journey-step {% if '4' in visited_teams %}visited{% endif %}" onclick="goToProject('4')">
-                    <div class="road-path">
-                        <div class="step-info">
-                            <div class="step-number-badge">4</div>
-                            <div class="step-title">Machine Learning Solutions</div>
-                            <div class="step-description">Harness the power of intelligent algorithms</div>
-                        </div>
+                    <div class="step-info">
+                        <div class="step-number-badge">4</div>
                         <div class="road-character">🤖</div>
+                        <div class="step-title">Machine Learning Solutions</div>
+                        <div class="step-description">Harness the power of intelligent algorithms</div>
                     </div>
                 </div>
 
                 <!-- Step 5: Consumer Research & Insights -->
                 <div class="journey-step {% if '5' in visited_teams %}visited{% endif %}" onclick="goToProject('5')">
-                    <div class="road-path">
-                        <div class="step-info">
-                            <div class="step-number-badge">5</div>
-                            <div class="step-title">Consumer Research & Insights</div>
-                            <div class="step-description">Experience the future of AI innovation</div>
-                        </div>
+                    <div class="step-info">
+                        <div class="step-number-badge">5</div>
                         <div class="road-character">🧠</div>
+                        <div class="step-title">Consumer Research & Insights</div>
+                        <div class="step-description">Experience the future of AI innovation</div>
                     </div>
                 </div>
 
                 <!-- Step 6: Martech -->
                 <div class="journey-step {% if '6' in visited_teams %}visited{% endif %}" onclick="goToProject('6')">
-                    <div class="road-path">
-                        <div class="step-info">
-                            <div class="step-number-badge">6</div>
-                            <div class="step-title">Martech</div>
-                            <div class="step-description">Enable intelligent marketing technologies</div>
-                        </div>
+                    <div class="step-info">
+                        <div class="step-number-badge">6</div>
                         <div class="road-character">📈</div>
+                        <div class="step-title">Martech</div>
+                        <div class="step-description">Enable intelligent marketing technologies</div>
                     </div>
                 </div>
             </div>
