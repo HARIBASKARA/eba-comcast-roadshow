@@ -64,6 +64,11 @@ def index():
     """Welcome page with entry form"""
     return render_template('index.html')
 
+@app.route('/image-mapper')
+def image_mapper():
+    """Coordinate mapping tool for banner image"""
+    return render_template('image_mapper.html')
+
 @app.route('/submit-entry', methods=['POST'])
 def submit_entry():
     """Handle employee entry data submission"""

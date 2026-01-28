@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Coordinate Mapper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .instructions h3 {
+            color: #1976D2;
+            margin-bottom: 10px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .image-container {
+            position: relative;
+            display: inline-block;
+            border: 2px solid #ddd;
+            margin-top: 20px;
+        }
+
+        #bannerImage {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            cursor: crosshair;
+        }
+
+        .coordinates-display {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .coordinates-display h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        #coordsList {
+            list-style: none;
+            padding: 0;
+        }
+
+        #coordsList li {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            border: 1px solid #ddd;
+        }
+
+        .team-label {
+            font-weight: bold;
+            color: #2196F3;
+            display: inline-block;
+            width: 250px;
+        }
+
+        .clear-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .clear-btn:hover {
+            background: #d32f2f;
+        }
+
+        .copy-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .copy-btn:hover {
+            background: #45a049;
+        }
+
+        .current-coords {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="current-coords" id="currentCoords">
+        Hover over image
+    </div>
+
+    <div class="container">
+        <h1>🗺️ Roadshow Banner Image Mapper</h1>
+        
+        <div class="instructions">
+            <h3>📋 Instructions:</h3>
+            <ol>
+                <li>Click on <strong>TOP-LEFT corner</strong> of the first team icon</li>
+                <li>Then click on <strong>BOTTOM-RIGHT corner</strong> of the same icon</li>
+                <li>Repeat for all 6 teams in this order:
+                    <ul>
+                        <li>1. PMO</li>
+                        <li>2. Data & Governance</li>
+                        <li>3. Analytics & Reporting</li>
+                        <li>4. Machine Learning Solutions</li>
+                        <li>5. Consumer Research & Insights</li>
+                        <li>6. Martech</li>
+                    </ul>
+                </li>
+                <li>Click "Copy All Coordinates" button when done</li>
+                <li>Paste the coordinates back to me</li>
+            </ol>
+        </div>
+
+        <div class="image-container">
+            <img id="bannerImage" src="/qr_codes/road_show_banner.png" alt="Roadshow Banner">
+        </div>
+
+        <div class="coordinates-display">
+            <h3>📍 Clicked Coordinates:</h3>
+            <ul id="coordsList"></ul>
+            <button class="clear-btn" onclick="clearCoords()">Clear All</button>
+            <button class="copy-btn" onclick="copyCoords()">Copy All Coordinates</button>
+        </div>
+    </div>
+
+    <script>
+        const teamNames = [
+            'PMO',
+            'Data & Governance',
+            'Analytics & Reporting',
+            'Machine Learning Solutions',
+            'Consumer Research & Insights',
+            'Martech'
+        ];
+
+        let clicks = [];
+        let currentTeamIndex = 0;
+        const image = document.getElementById('bannerImage');
+        const coordsList = document.getElementById('coordsList');
+        const currentCoordsDiv = document.getElementById('currentCoords');
+
+        // Show coordinates on hover
+        image.addEventListener('mousemove', (e) => {
+            const rect = image.getBoundingClientRect();
+            const x = Math.round(e.clientX - rect.left);
+            const y = Math.round(e.clientY - rect.top);
+            currentCoordsDiv.textContent = `X: ${x}, Y: ${y}`;
+        });
+
+        image.addEventListener('mouseleave', () => {
+            currentCoordsDiv.textContent = 'Hover over image';
+        });
+
+        // Handle clicks
+        image.addEventListener('click', (e) => {
+            const rect = image.getBoundingClientRect();
+            const x = Math.round(e.clientX - rect.left);
+            const y = Math.round(e.clientY - rect.top);
+
+            clicks.push({x, y});
+
+            const teamIndex = Math.floor((clicks.length - 1) / 2);
+            const cornerType = (clicks.length % 2 === 1) ? 'TOP-LEFT' : 'BOTTOM-RIGHT';
+            const teamName = teamNames[teamIndex] || `Team ${teamIndex + 1}`;
+
+            const li = document.createElement('li');
+            li.innerHTML = `<span class="team-label">${teamName} (${cornerType})</span> x: ${x}, y: ${y}`;
+            coordsList.appendChild(li);
+
+            // Auto-scroll to bottom
+            coordsList.scrollTop = coordsList.scrollHeight;
+
+            // Alert when team region is complete
+            if (clicks.length % 2 === 0) {
+                const startClick = clicks[clicks.length - 2];
+                const endClick = clicks[clicks.length - 1];
+                console.log(`${teamName} region: [${startClick.x}, ${startClick.y}, ${endClick.x}, ${endClick.y}]`);
+                
+                if (teamIndex < teamNames.length - 1) {
+                    setTimeout(() => {
+                        alert(`✅ ${teamName} region saved!\n\nNow click on: ${teamNames[teamIndex + 1]}`);
+                    }, 100);
+                } else {
+                    setTimeout(() => {
+                        alert('🎉 All 6 teams mapped! Click "Copy All Coordinates" button.');
+                    }, 100);
+                }
+            }
+        });
+
+        function clearCoords() {
+            clicks = [];
+            coordsList.innerHTML = '';
+            currentTeamIndex = 0;
+        }
+
+        function copyCoords() {
+            if (clicks.length === 0) {
+                alert('No coordinates to copy! Click on the image first.');
+                return;
+            }
+
+            let output = '[\n';
+            for (let i = 0; i < clicks.length; i += 2) {
+                if (i + 1 < clicks.length) {
+                    const teamIndex = i / 2;
+                    const teamName = teamNames[teamIndex] || `Team ${teamIndex + 1}`;
+                    const x1 = clicks[i].x;
+                    const y1 = clicks[i].y;
+                    const x2 = clicks[i + 1].x;
+                    const y2 = clicks[i + 1].y;
+                    output += `  {"name": "${teamName}", "id": "${teamIndex + 1}", "coords": [${x1}, ${y1}, ${x2}, ${y2}]}`;
+                    if (teamIndex < 5) output += ',';
+                    output += '\n';
+                }
+            }
+            output += ']';
+
+            navigator.clipboard.writeText(output).then(() => {
+                alert('✅ Coordinates copied to clipboard!\n\nPaste them back to me in the chat.');
+            }).catch(() => {
+                // Fallback: show in prompt
+                prompt('Copy these coordinates:', output);
+            });
+        }
+    </script>
+</body>
+</html>
