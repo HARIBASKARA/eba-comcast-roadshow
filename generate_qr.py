@@ -99,12 +99,12 @@ def main():
     
     # Generate ONE QR per team (physical station QR)
     project_names = {
-        '1': 'Framework',
-        '2': 'Solution',
-        '3': 'Data Analytics Team',
-        '4': 'Machine Learning Team',
-        '5': 'Artificial Intelligence Team',
-        '6': 'Market Team'
+        '1': 'PMO',
+        '2': 'Data & Governance',
+        '3': 'Analytics & Reporting',
+        '4': 'Machine Learning Solutions',
+        '5': 'Consumer Research & Insights',
+        '6': 'Martech'
     }
     
     for i in range(1, 7):

@@ -51,12 +51,12 @@ if not os.path.exists(ENTRY_DATA_FILE):
 
 # Project configuration
 PROJECTS = {
-    '1': {'name': 'Framework', 'estimated_time': '15 minutes'},
-    '2': {'name': 'Solution', 'estimated_time': '15 minutes'},
-    '3': {'name': 'Data Analytics Team', 'estimated_time': '15 minutes'},
-    '4': {'name': 'Machine Learning Team', 'estimated_time': '15 minutes'},
-    '5': {'name': 'Artificial Intelligence Team', 'estimated_time': '15 minutes'},
-    '6': {'name': 'Market Team', 'estimated_time': '15 minutes'}
+    '1': {'name': 'PMO', 'estimated_time': '15 minutes'},
+    '2': {'name': 'Data & Governance', 'estimated_time': '15 minutes'},
+    '3': {'name': 'Analytics & Reporting', 'estimated_time': '15 minutes'},
+    '4': {'name': 'Machine Learning Solutions', 'estimated_time': '15 minutes'},
+    '5': {'name': 'Consumer Research & Insights', 'estimated_time': '15 minutes'},
+    '6': {'name': 'Martech', 'estimated_time': '15 minutes'}
 }
 
 @app.route('/')
@@ -246,12 +246,15 @@ def save_time_tracking(email, project_id, time_spent):
                 break
     
     # Update project time
-    project_key = f'Module {project_id} (minutes)'
+    project_name = PROJECTS[project_id]['name']
+    project_key = f'{project_name} (minutes)'
     project_data['Email'] = email
     project_data[project_key] = time_spent
     
     # Write updated data
-    fieldnames = ['Email'] + [f'Module {i} (minutes)' for i in range(1, 7)]
+    fieldnames = ['Email', 'PMO (minutes)', 'Data & Governance (minutes)', 
+                  'Analytics & Reporting (minutes)', 'Machine Learning Solutions (minutes)', 
+                  'Consumer Research & Insights (minutes)', 'Martech (minutes)']
     with open(file_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
