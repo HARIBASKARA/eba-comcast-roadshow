@@ -237,64 +237,83 @@
             display: none;
         }
 
-        /* Mobile Responsive */
+        /* Mobile Responsive - Keep same desktop layout */
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
             .roadmap-container {
-                padding: 40px 20px;
+                padding: 30px 15px;
+            }
+
+            .header {
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .welcome-text {
+                font-size: 1rem;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
             }
 
             .journey-step {
-                flex-direction: column !important;
-                margin-bottom: 60px;
-                text-align: center;
-            }
-
-            .journey-step:nth-child(even) {
-                flex-direction: column !important;
+                margin-bottom: 70px;
             }
 
             .step-circle {
+                min-width: 100px;
                 width: 100px;
                 height: 100px;
-                margin-bottom: 20px;
             }
 
             .step-number {
                 font-size: 2rem;
             }
 
+            .step-icon {
+                font-size: 1rem;
+            }
+
             .step-content {
-                padding: 0;
+                padding: 0 20px;
+                max-width: 100%;
+            }
+
+            .step-title {
+                font-size: 1.4rem;
+            }
+
+            .step-description {
+                font-size: 0.9rem;
+            }
+
+            .step-time {
+                font-size: 0.85rem;
+                padding: 6px 16px;
             }
 
             .step-connector {
-                left: 50%;
-                transform: translateX(-50%);
+                left: 50px;
+                height: 70px;
+            }
+
+            .logout-btn {
+                padding: 12px 30px;
+                font-size: 1rem;
             }
         }
 
         /* Leaderboard - HIDDEN */
         .leaderboard {
             display: none;
-        }
-            color: #000000;
-            font-size: 0.95rem;
-            margin-bottom: 4px;
-        }
-
-        .leaderboard-item-time {
-            color: #000000;
-            font-size: 1.1rem;
-            font-weight: 700;
-            font-family: 'Courier New', monospace;
-        }
-
-        .leaderboard-empty {
-            text-align: center;
-            color: #999;
-            font-size: 0.9rem;
-            padding: 20px;
-            font-style: italic;
         }
 
         /* Logout Button */
@@ -341,54 +360,6 @@
                 padding: 12px 30px;
                 font-size: 1rem;
             }
-        }
-                font-size: 1.2rem;
-            }
-
-            .welcome-text {
-                font-size: 0.85rem;
-            }
-
-            .project-name {
-                font-size: 1rem;
-            }
-
-            .project-number {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
-
-            .estimated-time {
-                font-size: 0.8rem;
-                padding: 6px 12px;
-            }
-        }
-
-        /* Color variations for different projects - entire card colored */
-        .project-card:nth-child(1) { background: #FF8C00; } /* Orange */
-        .project-card:nth-child(2) { background: #28a745; } /* Green */
-        .project-card:nth-child(3) { background: #FF69B4; } /* Pink */
-        .project-card:nth-child(4) { background: #8B00FF; } /* Violet */
-        .project-card:nth-child(5) { background: #0066FF; } /* Blue */
-        .project-card:nth-child(6) { background: #FF0000; } /* Red */
-        .project-card:nth-child(7) { background: #FFD700; color: #000000; } /* Yellow with black text */
-        
-        /* Yellow card needs black text for visibility */
-        .project-card:nth-child(7) .project-name,
-        .project-card:nth-child(7) .project-info,
-        .project-card:nth-child(7) .estimated-time,
-        .project-card:nth-child(7) .action-hint {
-            color: #000000;
-        }
-        
-        .project-card:nth-child(7) .project-number {
-            background: rgba(0, 0, 0, 0.2);
-            color: #000000;
-        }
-        
-        .project-card:nth-child(7) .estimated-time {
-            background: rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
@@ -505,7 +476,7 @@
         <div style="text-align: center; margin-top: 30px;">
             <button class="logout-btn" onclick="handleLogout()">
                 <span>🚪</span>
-                <span>Logout & Download Data</span>
+                <span>Logout </span>
             </button>
         </div>
     </div>
