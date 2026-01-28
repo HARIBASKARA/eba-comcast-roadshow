@@ -112,9 +112,11 @@ def main():
         # Format: URL?verify=ID (e.g., /project/1?verify=1)
         team_url = f"{SERVER_URL}/project/{i}?verify={i}"
         team_name = project_names.get(str(i), f'Team {i}')
+        # Create filename from team name (replace spaces and & with underscores)
+        filename = team_name.replace(' ', '_').replace('&', 'and') + '_QR.png'
         generate_qr_code(
             team_url,
-            f"team_{i}_qr.png",
+            filename,
             f"📍 {team_name}"
         )
     
@@ -123,7 +125,7 @@ def main():
     print(f"📁 QR codes saved in: {os.path.abspath(QR_DIR)}")
     print("\n📋 Instructions:")
     print("1. Print entrance_qr.png - Place at roadshow entrance")
-    print("2. Print team_1_qr.png through team_6_qr.png")
+    print("2. Print PMO_QR.png, Data_and_Governance_QR.png, etc.")
     print("3. Place each team QR at its physical station")
     print("\n💡 Flow for registered user:")
     print("   1. Scan entrance → Register")
