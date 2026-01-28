@@ -562,6 +562,12 @@
                         if (timerInterval) {
                             clearInterval(timerInterval);
                         }
+                        // Mark project as completed in localStorage
+                        const completedProjects = JSON.parse(localStorage.getItem('completedProjects') || '[]');
+                        if (!completedProjects.includes('{{ project_id }}')) {
+                            completedProjects.push('{{ project_id }}');
+                            localStorage.setItem('completedProjects', JSON.stringify(completedProjects));
+                        }
                     }
                 } catch (error) {
                     console.error('Error ending project:', error);
