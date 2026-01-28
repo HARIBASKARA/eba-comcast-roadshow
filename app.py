@@ -116,11 +116,13 @@ def projects():
     
     # Get project times from session
     project_times = session.get('project_times', {})
+    visited_teams = session.get('visited_teams', [])
     
     return render_template('projects.html', 
                          projects=PROJECTS,
                          employee_name=session.get('email'),
-                         project_times=project_times)
+                         project_times=project_times,
+                         visited_teams=visited_teams)
 
 @app.route('/project/<project_id>')
 def project_detail(project_id):
@@ -141,6 +143,13 @@ def project_detail(project_id):
         return "Project not found", 404
     
     project = PROJECTS[project_id]
+    
+    # Track visited teams
+    if 'visited_teams' not in session:
+        session['visited_teams'] = []
+    if project_id not in session['visited_teams']:
+        session['visited_teams'].append(project_id)
+        session.modified = True
     
     # Check if they just registered and scanned a QR
     scanned_verify = session.pop('scanned_verify_id', None)

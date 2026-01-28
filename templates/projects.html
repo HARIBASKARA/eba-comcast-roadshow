@@ -180,6 +180,17 @@
             transform: scale(1.05);
         }
 
+        /* Visited Team Styling */
+        .journey-step.visited .step-circle {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            box-shadow: 0 10px 40px rgba(40, 167, 69, 0.5);
+        }
+
+        .journey-step.visited .step-icon {
+            font-size: 3.5rem;
+            font-weight: bold;
+        }
+
         .step-number {
             font-size: 2.5rem;
             font-weight: 800;
@@ -374,10 +385,10 @@
         <div class="roadmap-container">
             <div class="roadmap-journey">
                 <!-- Step 1 -->
-                <div class="journey-step" onclick="goToProject('1')">
+                <div class="journey-step {% if '1' in visited_teams %}visited{% endif %}" onclick="goToProject('1')">
                     <div class="step-circle">
                         <div class="step-number">1</div>
-                        <div class="step-icon">🎯</div>
+                        <div class="step-icon">{% if '1' in visited_teams %}✓{% else %}🎯{% endif %}</div>
                     </div>
                     <div class="step-content">
                         <div class="step-title">PMO</div>
@@ -388,10 +399,10 @@
                 </div>
 
                 <!-- Step 2 -->
-                <div class="journey-step" onclick="goToProject('2')">
+                <div class="journey-step {% if '2' in visited_teams %}visited{% endif %}" onclick="goToProject('2')">
                     <div class="step-circle">
                         <div class="step-number">2</div>
-                        <div class="step-icon">💡</div>
+                        <div class="step-icon">{% if '2' in visited_teams %}✓{% else %}💡{% endif %}</div>
                     </div>
                     <div class="step-content">
                         <div class="step-title">Data & Governance</div>
@@ -402,10 +413,10 @@
                 </div>
 
                 <!-- Step 3 -->
-                <div class="journey-step" onclick="goToProject('3')">
+                <div class="journey-step {% if '3' in visited_teams %}visited{% endif %}" onclick="goToProject('3')">
                     <div class="step-circle">
                         <div class="step-number">3</div>
-                        <div class="step-icon">📊</div>
+                        <div class="step-icon">{% if '3' in visited_teams %}✓{% else %}📊{% endif %}</div>
                     </div>
                     <div class="step-content">
                         <div class="step-title">Analytics & Reporting</div>
@@ -416,10 +427,10 @@
                 </div>
 
                 <!-- Step 4 -->
-                <div class="journey-step" onclick="goToProject('4')">
+                <div class="journey-step {% if '4' in visited_teams %}visited{% endif %}" onclick="goToProject('4')">
                     <div class="step-circle">
                         <div class="step-number">4</div>
-                        <div class="step-icon">🤖</div>
+                        <div class="step-icon">{% if '4' in visited_teams %}✓{% else %}🤖{% endif %}</div>
                     </div>
                     <div class="step-content">
                         <div class="step-title">Machine Learning Solutions</div>
@@ -430,10 +441,10 @@
                 </div>
 
                 <!-- Step 5 -->
-                <div class="journey-step" onclick="goToProject('5')">
+                <div class="journey-step {% if '5' in visited_teams %}visited{% endif %}" onclick="goToProject('5')">
                     <div class="step-circle">
                         <div class="step-number">5</div>
-                        <div class="step-icon">🧠</div>
+                        <div class="step-icon">{% if '5' in visited_teams %}✓{% else %}🧠{% endif %}</div>
                     </div>
                     <div class="step-content">
                         <div class="step-title">Consumer Research & Insights</div>
@@ -444,10 +455,10 @@
                 </div>
 
                 <!-- Step 6 -->
-                <div class="journey-step" onclick="goToProject('6')">
+                <div class="journey-step {% if '6' in visited_teams %}visited{% endif %}" onclick="goToProject('6')">
                     <div class="step-circle">
                         <div class="step-number">6</div>
-                        <div class="step-icon">📈</div>
+                        <div class="step-icon">{% if '6' in visited_teams %}✓{% else %}📈{% endif %}</div>
                     </div>
                     <div class="step-content">
                         <div class="step-title">Martech</div>
