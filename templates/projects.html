@@ -152,12 +152,12 @@
             animation: fadeIn 0.8s ease-out backwards;
         }
 
-        .journey-step:nth-child(1) { animation-delay: 0.1s; }
-        .journey-step:nth-child(2) { animation-delay: 0.2s; }
-        .journey-step:nth-child(3) { animation-delay: 0.3s; }
-        .journey-step:nth-child(4) { animation-delay: 0.4s; }
-        .journey-step:nth-child(5) { animation-delay: 0.5s; }
-        .journey-step:nth-child(6) { animation-delay: 0.6s; }
+        .journey-step[data-step="1"] { animation-delay: 0.1s; }
+        .journey-step[data-step="2"] { animation-delay: 0.2s; }
+        .journey-step[data-step="3"] { animation-delay: 0.3s; }
+        .journey-step[data-step="4"] { animation-delay: 0.4s; }
+        .journey-step[data-step="5"] { animation-delay: 0.5s; }
+        .journey-step[data-step="6"] { animation-delay: 0.6s; }
 
         @keyframes fadeIn {
             from {
@@ -232,37 +232,37 @@
 
         /* Positioning for each step */
         /* Step 1 - Top Left */
-        .journey-step:nth-child(1) {
+        .journey-step[data-step="1"] {
             top: 50px;
             left: 10%;
         }
 
         /* Step 2 - Right */
-        .journey-step:nth-child(2) {
+        .journey-step[data-step="2"] {
             top: 350px;
             right: 10%;
         }
 
         /* Step 3 - Left */
-        .journey-step:nth-child(3) {
+        .journey-step[data-step="3"] {
             top: 650px;
             left: 10%;
         }
 
         /* Step 4 - Right */
-        .journey-step:nth-child(4) {
+        .journey-step[data-step="4"] {
             top: 950px;
             right: 10%;
         }
 
         /* Step 5 - Left */
-        .journey-step:nth-child(5) {
+        .journey-step[data-step="5"] {
             top: 1250px;
             left: 10%;
         }
 
         /* Step 6 - Bottom Right */
-        .journey-step:nth-child(6) {
+        .journey-step[data-step="6"] {
             top: 1550px;
             right: 10%;
         }
@@ -325,32 +325,32 @@
             }
 
             /* Adjust step positions for mobile */
-            .journey-step:nth-child(1) {
+            .journey-step[data-step="1"] {
                 left: 5%;
                 top: 50px;
             }
 
-            .journey-step:nth-child(2) {
+            .journey-step[data-step="2"] {
                 right: 5%;
                 top: 380px;
             }
 
-            .journey-step:nth-child(3) {
+            .journey-step[data-step="3"] {
                 left: 5%;
                 top: 710px;
             }
 
-            .journey-step:nth-child(4) {
+            .journey-step[data-step="4"] {
                 right: 5%;
                 top: 1040px;
             }
 
-            .journey-step:nth-child(5) {
+            .journey-step[data-step="5"] {
                 left: 5%;
                 top: 1370px;
             }
 
-            .journey-step:nth-child(6) {
+            .journey-step[data-step="6"] {
                 right: 5%;
                 top: 1700px;
             }
@@ -474,7 +474,7 @@
                 </svg>
 
                 <!-- Step 1: PMO -->
-                <div class="journey-step {% if '1' in visited_teams %}visited{% endif %}" onclick="goToProject('1')">
+                <div class="journey-step {% if '1' in visited_teams %}visited{% endif %}" data-step="1" onclick="goToProject('1')">
                     <div class="step-info">
                         <div class="step-number-badge">1</div>
                         <div class="road-character">🎯</div>
@@ -484,7 +484,7 @@
                 </div>
 
                 <!-- Step 2: Data & Governance -->
-                <div class="journey-step {% if '2' in visited_teams %}visited{% endif %}" onclick="goToProject('2')">
+                <div class="journey-step {% if '2' in visited_teams %}visited{% endif %}" data-step="2" onclick="goToProject('2')">
                     <div class="step-info">
                         <div class="step-number-badge">2</div>
                         <div class="road-character">🔐</div>
@@ -494,7 +494,7 @@
                 </div>
 
                 <!-- Step 3: Analytics & Reporting -->
-                <div class="journey-step {% if '3' in visited_teams %}visited{% endif %}" onclick="goToProject('3')">
+                <div class="journey-step {% if '3' in visited_teams %}visited{% endif %}" data-step="3" onclick="goToProject('3')">
                     <div class="step-info">
                         <div class="step-number-badge">3</div>
                         <div class="road-character">📊</div>
@@ -504,7 +504,7 @@
                 </div>
 
                 <!-- Step 4: Machine Learning Solutions -->
-                <div class="journey-step {% if '4' in visited_teams %}visited{% endif %}" onclick="goToProject('4')">
+                <div class="journey-step {% if '4' in visited_teams %}visited{% endif %}" data-step="4" onclick="goToProject('4')">
                     <div class="step-info">
                         <div class="step-number-badge">4</div>
                         <div class="road-character">🤖</div>
@@ -514,7 +514,7 @@
                 </div>
 
                 <!-- Step 5: Consumer Research & Insights -->
-                <div class="journey-step {% if '5' in visited_teams %}visited{% endif %}" onclick="goToProject('5')">
+                <div class="journey-step {% if '5' in visited_teams %}visited{% endif %}" data-step="5" onclick="goToProject('5')">
                     <div class="step-info">
                         <div class="step-number-badge">5</div>
                         <div class="road-character">🧠</div>
@@ -524,7 +524,7 @@
                 </div>
 
                 <!-- Step 6: Martech -->
-                <div class="journey-step {% if '6' in visited_teams %}visited{% endif %}" onclick="goToProject('6')">
+                <div class="journey-step {% if '6' in visited_teams %}visited{% endif %}" data-step="6" onclick="goToProject('6')">
                     <div class="step-info">
                         <div class="step-number-badge">6</div>
                         <div class="road-character">📈</div>
