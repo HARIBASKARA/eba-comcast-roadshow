@@ -117,10 +117,32 @@ def projects():
     # Get project times from session
     project_times = session.get('project_times', {})
     
+    # Get completed projects from session
+    completed_projects = session.get('completed_projects', [])
+    
     return render_template('projects.html', 
                          projects=PROJECTS,
                          employee_name=session.get('email'),
-                         project_times=project_times)
+                         project_times=project_times,
+                         completed_projects=completed_projects)
+
+@app.route('/projects-test')
+def projects_test():
+    """Test route for new roadmap design"""
+    if 'email' not in session:
+        return render_template('index.html')
+    
+    # Get project times from session
+    project_times = session.get('project_times', {})
+    
+    # Get completed projects from session
+    completed_projects = session.get('completed_projects', [])
+    
+    return render_template('projects_new.html', 
+                         projects=PROJECTS,
+                         employee_name=session.get('email'),
+                         project_times=project_times,
+                         completed_projects=completed_projects)
 
 @app.route('/project/<project_id>')
 def project_detail(project_id):
@@ -196,8 +218,17 @@ def end_project(project_id):
     session['project_times'][project_id] = round(time_spent, 2)
     session.modified = True
     
-    # Save to CSV file for this employee
-    save_time_tracking(session['email'], project_id, time_spent)
+    # Mark project as completed in session
+    if 'completed_projects' not in session:
+        session['completed_projects'] = []
+    if project_id not in session['completed_projects']:
+        session['completed_projects'].append(project_id)
+    session.modified = True
+    
+    # Save to CSV file for this employee with timestamps
+    start_time_str = start_time.strftime('%Y-%m-%d %H:%M:%S')
+    end_time_str = end_time.strftime('%Y-%m-%d %H:%M:%S')
+    save_time_tracking(session['email'], project_id, start_time_str, end_time_str)
     
     return jsonify({
         'success': True, 
@@ -228,10 +259,14 @@ def update_exit_time(email):
         writer.writeheader()
         writer.writerows(rows)
 
-def save_time_tracking(email, project_id, time_spent):
-    """Save time tracking data to employee-specific CSV file"""
+def save_time_tracking(email, project_id, entry_time, exit_time):
+    """Save time tracking data to employee-specific CSV file with timestamps"""
     safe_filename = sanitize_email_for_filename(email)
     file_path = os.path.join(TIME_TRACKING_DIR, f'{safe_filename}_time_tracking.csv')
+    
+    print(f"[DEBUG] Saving time tracking for {email}, Project {project_id}")
+    print(f"[DEBUG] Entry: {entry_time}, Exit: {exit_time}")
+    print(f"[DEBUG] File path: {file_path}")
     
     # Check if file exists
     file_exists = os.path.exists(file_path)
@@ -245,20 +280,28 @@ def save_time_tracking(email, project_id, time_spent):
                 project_data = row
                 break
     
-    # Update project time
+    # Update project timestamps
     project_name = PROJECTS[project_id]['name']
-    project_key = f'{project_name} (minutes)'
+    entry_key = f'{project_name} Entry Time'
+    exit_key = f'{project_name} Exit Time'
     project_data['Email'] = email
-    project_data[project_key] = time_spent
+    project_data[entry_key] = entry_time
+    project_data[exit_key] = exit_time
     
     # Write updated data
-    fieldnames = ['Email', 'PMO (minutes)', 'Data & Governance (minutes)', 
-                  'Analytics & Reporting (minutes)', 'Machine Learning Solutions (minutes)', 
-                  'Consumer Research & Insights (minutes)', 'Martech (minutes)']
+    fieldnames = ['Email', 
+                  'PMO Entry Time', 'PMO Exit Time',
+                  'Data & Governance Entry Time', 'Data & Governance Exit Time',
+                  'Analytics & Reporting Entry Time', 'Analytics & Reporting Exit Time',
+                  'Machine Learning Solutions Entry Time', 'Machine Learning Solutions Exit Time',
+                  'Consumer Research & Insights Entry Time', 'Consumer Research & Insights Exit Time',
+                  'Martech Entry Time', 'Martech Exit Time']
     with open(file_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerow(project_data)
+    
+    print(f"[DEBUG] Successfully saved to {file_path}")
 
 @app.route('/get-session-data')
 def get_session_data():

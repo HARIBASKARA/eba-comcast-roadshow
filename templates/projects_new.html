@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>EBI Roadshow 2026 - Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Rounded Mplus 1c', sans-serif;
+            background: #FFF8F0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 0;
+        }
+
+        .roadmap-wrapper {
+            max-width: 390px;
+            margin: 0 auto;
+            background: #FFF8F0;
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 80px;
+        }
+
+        .title {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #4ade80 0%, #fbbf24 25%, #f472b6 50%, #60a5fa 75%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            position: sticky;
+            top: 0;
+            background-color: #FFF8F0;
+            z-index: 100;
+        }
+
+        .roadmap-container {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        /* SVG Road Container */
+        .road-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Milestones Container */
+        .milestones {
+            position: relative;
+            z-index: 2;
+            padding: 0 15px;
+        }
+
+        .milestone {
+            display: flex;
+            align-items: center;
+            margin-bottom: 140px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .milestone:hover {
+            transform: scale(1.05);
+        }
+
+        /* Alternating left/right */
+        .milestone.left {
+            justify-content: flex-start;
+        }
+
+        .milestone.right {
+            justify-content: flex-end;
+        }
+
+        .milestone-content {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            max-width: 200px;
+            position: relative;
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .milestone:nth-child(1) .milestone-content { animation-delay: 0.1s; }
+        .milestone:nth-child(2) .milestone-content { animation-delay: 0.2s; }
+        .milestone:nth-child(3) .milestone-content { animation-delay: 0.3s; }
+        .milestone:nth-child(4) .milestone-content { animation-delay: 0.4s; }
+        .milestone:nth-child(5) .milestone-content { animation-delay: 0.5s; }
+        .milestone:nth-child(6) .milestone-content { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .milestone-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #000 0%, #333 100%);
+            color: white;
+            text-align: center;
+            line-height: 40px;
+            font-weight: 800;
+            font-size: 20px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .milestone.completed .milestone-number {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            font-size: 0;
+        }
+
+        .milestone.completed .milestone-number::before {
+            content: '✓';
+            display: block;
+            font-size: 28px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .milestone-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+        .milestone-description {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .milestone-time {
+            display: inline-block;
+            background: #f0f0f0;
+            color: #333;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .character {
+            font-size: 48px;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .milestone.left .character {
+            right: -60px;
+            top: 10px;
+        }
+
+        .milestone.right .character {
+            left: -60px;
+            top: 10px;
+        }
+
+        /* Logout Button */
+        .logout-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+        }
+
+        .logout-btn {
+            background: #FF0000;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #cc0000;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
+        }
+
+        .logout-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="roadmap-wrapper">
+        <h1 class="title">EBI ROADSHOW 2026</h1>
+
+        <div class="roadmap-container">
+            <!-- SVG Road -->
+            <svg class="road-svg" viewBox="0 0 390 1200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <!-- Road Gradients -->
+                    <linearGradient id="roadGradient1" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4ade80;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#86efac;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="roadGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#fcd34d;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="roadGradient3" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#fb923c;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#fdba74;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="roadGradient4" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#f472b6;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#f9a8d4;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="roadGradient5" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#c4b5fd;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="roadGradient6" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#93c5fd;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Continuous Road Path with Smooth Curves -->
+                <!-- Segment 1: Green - Start to right -->
+                <path d="M 50,50 C 50,80 180,80 180,110" stroke="url(#roadGradient1)" stroke-width="70" fill="none" stroke-linecap="round"/>
+                <path d="M 50,50 C 50,80 180,80 180,110" stroke="white" stroke-width="2" fill="none" stroke-dasharray="10,10" stroke-linecap="round"/>
+
+                <!-- Segment 2: Yellow - Right curve to left -->
+                <path d="M 180,110 C 180,140 250,180 250,220 C 250,260 90,260 90,300" stroke="url(#roadGradient2)" stroke-width="70" fill="none" stroke-linecap="round"/>
+                <path d="M 180,110 C 180,140 250,180 250,220 C 250,260 90,260 90,300" stroke="white" stroke-width="2" fill="none" stroke-dasharray="10,10" stroke-linecap="round"/>
+
+                <!-- Segment 3: Orange - Left curve to right -->
+                <path d="M 90,300 C 90,340 280,380 280,420" stroke="url(#roadGradient3)" stroke-width="70" fill="none" stroke-linecap="round"/>
+                <path d="M 90,300 C 90,340 280,380 280,420" stroke="white" stroke-width="2" fill="none" stroke-dasharray="10,10" stroke-linecap="round"/>
+
+                <!-- Segment 4: Pink - Right curve to left -->
+                <path d="M 280,420 C 280,460 340,500 340,540 C 340,580 60,580 60,620" stroke="url(#roadGradient4)" stroke-width="70" fill="none" stroke-linecap="round"/>
+                <path d="M 280,420 C 280,460 340,500 340,540 C 340,580 60,580 60,620" stroke="white" stroke-width="2" fill="none" stroke-dasharray="10,10" stroke-linecap="round"/>
+
+                <!-- Segment 5: Purple - Left curve to right -->
+                <path d="M 60,620 C 60,660 300,700 300,740" stroke="url(#roadGradient5)" stroke-width="70" fill="none" stroke-linecap="round"/>
+                <path d="M 60,620 C 60,660 300,700 300,740" stroke="white" stroke-width="2" fill="none" stroke-dasharray="10,10" stroke-linecap="round"/>
+
+                <!-- Segment 6: Blue - Right curve to finish -->
+                <path d="M 300,740 C 300,780 340,820 340,860 C 340,900 195,900 195,940" stroke="url(#roadGradient6)" stroke-width="70" fill="none" stroke-linecap="round"/>
+                <path d="M 300,740 C 300,780 340,820 340,860 C 340,900 195,900 195,940" stroke="white" stroke-width="2" fill="none" stroke-dasharray="10,10" stroke-linecap="round"/>
+            </svg>
+
+            <!-- Milestones -->
+            <div class="milestones">
+                <div class="milestone left" onclick="goToProject('1')">
+                    <div class="milestone-content">
+                        <div class="milestone-number">1</div>
+                        <div class="milestone-title">PMO</div>
+                        <div class="milestone-description">Start your journey with our foundational framework team</div>
+                        <div class="milestone-time">⏱️ 15 minutes</div>
+                        <div class="character">🎯</div>
+                    </div>
+                </div>
+
+                <div class="milestone right" onclick="goToProject('2')">
+                    <div class="milestone-content">
+                        <div class="milestone-number">2</div>
+                        <div class="milestone-title">Data & Governance</div>
+                        <div class="milestone-description">Discover innovative solutions for modern challenges</div>
+                        <div class="milestone-time">⏱️ 15 minutes</div>
+                        <div class="character">💡</div>
+                    </div>
+                </div>
+
+                <div class="milestone left" onclick="goToProject('3')">
+                    <div class="milestone-content">
+                        <div class="milestone-number">3</div>
+                        <div class="milestone-title">Analytics & Reporting</div>
+                        <div class="milestone-description">Transform data into actionable insights</div>
+                        <div class="milestone-time">⏱️ 15 minutes</div>
+                        <div class="character">📊</div>
+                    </div>
+                </div>
+
+                <div class="milestone right" onclick="goToProject('4')">
+                    <div class="milestone-content">
+                        <div class="milestone-number">4</div>
+                        <div class="milestone-title">Machine Learning Solutions</div>
+                        <div class="milestone-description">Harness the power of intelligent algorithms</div>
+                        <div class="milestone-time">⏱️ 15 minutes</div>
+                        <div class="character">🤖</div>
+                    </div>
+                </div>
+
+                <div class="milestone left" onclick="goToProject('5')">
+                    <div class="milestone-content">
+                        <div class="milestone-number">5</div>
+                        <div class="milestone-title">Consumer Research & Insights</div>
+                        <div class="milestone-description">Experience the future of AI innovation</div>
+                        <div class="milestone-time">⏱️ 15 minutes</div>
+                        <div class="character">🧠</div>
+                    </div>
+                </div>
+
+                <div class="milestone right" onclick="goToProject('6')">
+                    <div class="milestone-content">
+                        <div class="milestone-number">6</div>
+                        <div class="milestone-title">Martech</div>
+                        <div class="milestone-description">Understand market trends and strategies</div>
+                        <div class="milestone-time">⏱️ 15 minutes</div>
+                        <div class="character">📈</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logout Button -->
+        <div class="logout-container">
+            <button class="logout-btn" onclick="handleLogout()">
+                <span>🚪</span>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Get completed projects from server (passed via Jinja template)
+        const completedProjects = {% if completed_projects %}{{ completed_projects | tojson }}{% else %}[]{% endif %};
+        
+        // Mark completed projects on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            completedProjects.forEach(projectId => {
+                markProjectAsCompleted(projectId);
+            });
+        });
+
+        // Mark a project step as completed
+        function markProjectAsCompleted(projectId) {
+            const milestones = document.querySelectorAll('.milestone');
+            milestones.forEach((milestone, index) => {
+                const milestoneNumber = (index + 1).toString();
+                if (milestoneNumber === projectId) {
+                    milestone.classList.add('completed');
+                    console.log('Marked milestone', projectId, 'as completed');
+                }
+            });
+        }
+
+        function goToProject(projectId) {
+            window.location.href = `/project/${projectId}`;
+        }
+
+        async function handleLogout() {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                window.location.href = '/';
+            } catch (error) {
+                window.location.href = '/';
+            }
+        }
+    </script>
+</body>
+</html>
