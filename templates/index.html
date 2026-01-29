@@ -192,7 +192,7 @@
         <form id="entryForm">
             <div class="form-group">
                 <label for="email">Email Address *</label>
-                <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+                <input type="email" id="email" name="email" required placeholder="yourname@cable.comcast.com" pattern=".*@cable\.comcast\.com$" title="Please use your @cable.comcast.com email address">
             </div>
 
             <button type="submit" class="submit-btn" id="submitBtn">
@@ -222,6 +222,15 @@
             const formData = {
                 email: document.getElementById('email').value.trim()
             };
+            
+            // Validate email domain
+            if (!formData.email.endsWith('@cable.comcast.com')) {
+                errorMsg.textContent = 'Please use your @cable.comcast.com email address';
+                errorMsg.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enter Roadshow →';
+                return;
+            }
             
             try {
                 const response = await fetch('/submit-entry', {
